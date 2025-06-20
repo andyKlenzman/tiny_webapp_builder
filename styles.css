@@ -1,0 +1,104 @@
+/*////////////////////////////////////////////////////
+// General
+////////////////////////////////////////////////////*/
+
+
+html, body {
+
+    padding: 0;
+    overflow: auto;
+  
+  }
+  
+  body {
+    margin: 1em;
+    background-color: #ffffff;
+    color: black;
+    font-family: monospace;
+  }
+  
+
+  h2 {
+    margin: 0;
+  }
+  
+  img {
+    width: 40%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 20em;
+  }
+  
+  input, button {
+    border: none;
+    border-radius: 4px;
+  }
+  
+  input[type="text"]{
+    width: 100%;
+  }
+  
+  input[type="text"],
+  select,
+  button {
+    font-family: inherit;
+    padding: 4px 8px;
+    border: 2px solid #aaa;
+    border-radius: 2px;
+    background-color: white;
+  }
+  
+  button {
+    background-color: #eee;
+    border: 2px solid #888;
+    cursor: pointer;
+    box-shadow: 1px 1px 0 #ccc;
+    color: black
+  }
+  
+  button:hover {
+    background-color: #ddd;
+  }
+  
+  
+/*////////////////////////////////////////////////////
+// Group
+////////////////////////////////////////////////////*/
+.group-header {
+  display: flex;       
+  flex-direction: row;   
+  align-items: center;   
+  gap: 0.5em;
+  cursor: pointer;
+}
+
+
+.group-title {
+  margin: 0;
+}
+
+
+.group-delete.hidden {
+  display: none;
+}
+
+.group {
+  border: 1px solid #ccc;
+  padding: 1em;
+  background: #f9f9f9;
+  margin-bottom: 1em;
+}
+
+
+/*////////////////////////////////////////////////////
+// Item
+////////////////////////////////////////////////////*/
+.item-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.item-container.hidden {
+  display: none;
+}
