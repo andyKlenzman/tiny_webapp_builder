@@ -2,15 +2,11 @@
 
 // import {server} to do add layer
 
-// Wie kann ich den Eingagefeld entleeren? aber den schichten beibehalten?
-let groupName = ""; //TODO: delete me
-
-const viewModes = ["streak", "itemList"];
-const defaultViewMode = "streak";
+const viewModes = ["streak", "itemList", "editListItems"];
 let currentViewMode = "streak";
 
 /*/ ///////////////////////////////////////////////////
-// Internal APIs
+// Internal utils 
 ////////////////////////////////////////////////////*/
 const setViewMode = (data, mode) => {
   // Sets the state globally, so new groups are aware of how they should set their classes
@@ -46,20 +42,56 @@ const setViewMode = (data, mode) => {
   }
 };
 
-const createInputFieldComponent = ({ placeholder, onInputCb }) => {
-  const input = document.createElement("input");
+/*/ ///////////////////////////////////////////////////
+// Internal component creation  
+////////////////////////////////////////////////////*/
 
-  input.type = "text";
-  input.placeholder = placeholder;
+const createManualTimestampInput = () => {
+  let manualTimestamp = "";
 
-  input.addEventListener("input", (e) => {
-    groupName = e.target.value;
+  const manualTimeWrapper = document.createElement("div");
+  manualTimeWrapper.classList.add("flex-row");
+
+  const manualTimeButton = document.createElement("button");
+  manualTimeButton.textContent = "enter";
+
+  manualTimeButton.addEventListener("click", () => {
+    console.log("runTracking: manualTimeButton: press");
+
+    selectedGroups.forEach((groupName) => {
+      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
+
+      matchingElements.forEach((el) => {
+        let listElement = el.querySelector("ul");
+
+        if (listElement === null || manualTimestamp === "") return;
+
+        let listItem = document.createElement("li");
+        listItem.textContent = manualTimestamp;
+
+        listElement.appendChild(listItem);
+      });
+    });
   });
 
-  return input;
+  const manualTimeInput = document.createElement("input");
+
+  manualTimeInput.type = "datetime-local";
+  manualTimeInput.addEventListener("input", (e) => {
+    const localValue = manualTimeInput.value;
+    if (!localValue) return;
+
+    const localDate = new Date(localValue);
+
+    manualTimestamp = localDate.toISOString(); // z. B. "2025-07-26T16:30:00.000Z"
+  });
+
+  manualTimeWrapper.append(manualTimeInput, manualTimeButton);
+
+  return manualTimeWrapper;
 };
 
-const createGroupComponent = ({ groupName, viewMode }) => {
+const createGroupComponent = ({ groupName }) => {
   const groupWrapper = document.createElement("div");
   groupWrapper.dataset.type = "group";
   groupWrapper.id = groupName;
@@ -149,38 +181,7 @@ const createTimestampButton = () => {
   return timestampButton;
 };
 
-/*/ ///////////////////////////////////////////////////
-// Public API
-////////////////////////////////////////////////////*/
-let selectedGroups = [];
-
-export const runTracking = () => {
-  const groupList = document.createElement("div");
-
-  // Input field
-  const inputWrapper = document.createElement("div");
-  inputWrapper.className = "flex-row";
-  const inputField = createInputFieldComponent({
-    placeholder: "Enter group name",
-  });
-
-  const createButton = document.createElement("button");
-  createButton.textContent = "create";
-
-  createButton.addEventListener("click", () => {
-    console.log("runTracking: button press");
-    if (inputField.value === "") return;
-
-    const groupName = inputField.value;
-
-    const newGroup = createGroupComponent({ groupName });
-
-    groupList.appendChild(newGroup);
-    inputField.value = "";
-  });
-
-  // View selection
-  // TODO: add caching
+const createViewSelectDropdown = () => {
   const dropdown = document.createElement("select");
 
   viewModes.forEach((mode) => {
@@ -194,60 +195,63 @@ export const runTracking = () => {
     setViewMode(document, e.target.value);
   });
 
-  // editing of the groups
+  return dropdown;
+};
+
+const createGroupInputComponent = () => {
+  let groupName = "";
+
+  let inputWrapper = document.createElement("div");
+  let groupList = document.createElement("div");
+  // Input field
+  const inputHeaderWrapper = document.createElement("div");
+  inputHeaderWrapper.className = "flex-row";
+
+  const inputField = document.createElement("input");
+
+  inputField.type = "text";
+  inputField.placeholder = "group name";
+
+  inputField.addEventListener("input", (e) => {
+    groupName = e.target.value;
+  });
+
+  const createButton = document.createElement("button");
+  createButton.textContent = "create";
+
+  createButton.addEventListener("click", () => {
+    console.log("runTracking: button press");
+    if (inputField.value === "") return;
+
+    groupName = inputField.value;
+
+    const newGroup = createGroupComponent({ groupName });
+
+    groupList.append(newGroup);
+    groupName = "";
+    inputField.value = "";
+  });
+
+  inputHeaderWrapper.append(inputField, createButton);
+  inputWrapper.append(inputHeaderWrapper, groupList);
+
+  return inputWrapper;
+};
+
+/*/ ///////////////////////////////////////////////////
+// Public API
+////////////////////////////////////////////////////*/
+let selectedGroups = [];
+
+export const runTracking = () => {
+  const groupInputComponent = createGroupInputComponent();
+
+  const viewSelectDropdown = createViewSelectDropdown();
+
   const timestampButton = createTimestampButton();
   const deleteButton = createDeleteGroupButton();
+  const manualTimestampField = createManualTimestampInput();
 
-  let manualTimestamp = "";
-
-  const manualTimeWrapper = document.createElement("div");
-  manualTimeWrapper.classList.add("flex-row");
-
-  const manualTimeButton = document.createElement("button");
-  manualTimeButton.textContent = "enter";
-
-  manualTimeButton.addEventListener("click", () => {
-    console.log("runTracking: manualTimeButton: press");
-
-    selectedGroups.forEach((groupName) => {
-      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
-
-      matchingElements.forEach((el) => {
-        let listElement = el.querySelector("ul");
-
-        if (listElement === null || manualTimestamp === "") return;
-
-        let listItem = document.createElement("li");
-        listItem.textContent = manualTimestamp;
-
-        listElement.appendChild(listItem);
-      });
-    });
-  });
-
-  const manualTimeInput = document.createElement("input");
-
-  manualTimeInput.type = "datetime-local";
-  manualTimeInput.addEventListener("input", (e) => {
-    const localValue = manualTimeInput.value;
-    if (!localValue) return;
-
-    const localDate = new Date(localValue);
-
-    manualTimestamp = localDate.toISOString(); // z. B. "2025-07-26T16:30:00.000Z"
-  });
-
-  inputWrapper.appendChild(inputField);
-  inputWrapper.appendChild(createButton);
-  document.body.appendChild(inputWrapper);
-
-  document.body.appendChild(dropdown);
-
-  document.body.appendChild(groupList);
-
-  document.body.appendChild(timestampButton);
-  document.body.appendChild(deleteButton);
-
-  manualTimeWrapper.append(manualTimeInput, manualTimeButton);
-  document.body.appendChild(manualTimeWrapper);
+  document.body.append(groupInputComponent, viewSelectDropdown);
+  document.body.append(timestampButton, deleteButton, manualTimestampField);
 };
