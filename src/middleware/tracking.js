@@ -34,13 +34,13 @@ const createTrackingGroupComponent = ({ groupName }) => {
 
   checkbox.addEventListener("change", (e) => {
     if (e.target.checked) {
-      if (!groupArray.includes(groupName)) {
-        groupArray.push(groupName);
+      if (!selectedGroups.includes(groupName)) {
+        selectedGroups.push(groupName);
       }
     } else {
-      groupArray = groupArray.filter((name) => name !== groupName);
+      selectedGroups = selectedGroups.filter((name) => name !== groupName);
     }
-    console.log(groupArray);
+    console.log(selectedGroups);
   });
 
   const newGroup = createGroupComponent({ title: groupName });
@@ -51,27 +51,70 @@ const createTrackingGroupComponent = ({ groupName }) => {
   return trackingGroupWrapper;
 };
 
+const createDeleteGroupButton = () => {
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "delete";
+
+  deleteButton.addEventListener("click", () => {
+    console.log("runTracking: delete button press");
+    selectedGroups.forEach((groupName) => {
+      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
+
+      matchingElements.forEach((el) => {
+        el.remove();
+      });
+    });
+  });
+
+  return deleteButton;
+};
+
+const createTimestampButton = () => {
+  const timestampButton = document.createElement("button");
+  timestampButton.textContent = "timestamp";
+
+  timestampButton.addEventListener("click", () => {
+    console.log("runTracking: timestamp button press");
+
+    selectedGroups.forEach((groupName) => {
+      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
+
+      matchingElements.forEach((el) => {
+        let listElement = el.querySelector("ul");
+        console.log(listElement);
+
+        if (listElement === null) return;
+
+        let listItem = document.createElement("li");
+        listItem.textContent = "test";
+
+        listElement.appendChild(listItem);
+      });
+    });
+  });
+
+  return timestampButton;
+};
+
 /*/ ///////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////*/
-let groupArray = [];
+let selectedGroups = [];
 
 export const runTracking = () => {
   const inputWrapper = document.createElement("div");
-
+  inputWrapper.className = "flex-row"
   const inputField = createInputFieldComponent({
     placeholder: "Enter group name",
   });
 
   const createButton = document.createElement("button");
-  createButton.textContent = "Go";
+  createButton.textContent = "create";
 
   createButton.addEventListener("click", () => {
     console.log("runTracking: button press");
 
-    if (inputField.value === "") {
-      return;
-    }
+    if (inputField.value === "") return;
 
     const groupName = inputField.value;
 
@@ -84,22 +127,12 @@ export const runTracking = () => {
 
   // editing of the groups
 
-  const deleteButton = document.createElement("button");
-  deleteButton.textContent = "delete";
-
-  deleteButton.addEventListener("click", () => {
-    console.log("runTracking: delete button press");
-    groupArray.forEach((groupName) => {
-      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
-
-      matchingElements.forEach((el) => {
-        el.remove();
-      });
-    });
-  });
+  const timestampButton = createTimestampButton();
+  const deleteButton = createDeleteGroupButton();
 
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(createButton);
   document.body.appendChild(inputWrapper);
+  document.body.appendChild(timestampButton);
   document.body.appendChild(deleteButton);
 };

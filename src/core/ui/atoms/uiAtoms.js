@@ -11,7 +11,7 @@ export const createGroupComponent = ({ title }) => {
   heading.textContent = title;
 
   const list = document.createElement("ul");
-
+  
   wrapper.appendChild(heading);
   wrapper.appendChild(list);
 
