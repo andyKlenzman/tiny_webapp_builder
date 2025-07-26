@@ -23,13 +23,25 @@ const createInputFieldComponent = ({ placeholder, onInputCb }) => {
   return input;
 };
 
-const createTrackingGroupComponent = ({groupName} ) => {
+const createTrackingGroupComponent = ({ groupName }) => {
   const trackingGroupWrapper = document.createElement("div");
-  trackingGroupWrapper.className = "flex-row"
+  trackingGroupWrapper.className = "flex-row";
+  trackingGroupWrapper.id = groupName;
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
-  checkbox.id = "myCheckbox";
+  checkbox.id = groupName;
+
+  checkbox.addEventListener("change", (e) => {
+    if (e.target.checked) {
+      if (!groupArray.includes(groupName)) {
+        groupArray.push(groupName);
+      }
+    } else {
+      groupArray = groupArray.filter((name) => name !== groupName);
+    }
+    console.log(groupArray);
+  });
 
   const newGroup = createGroupComponent({ title: groupName });
 
@@ -42,6 +54,7 @@ const createTrackingGroupComponent = ({groupName} ) => {
 /*/ ///////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////*/
+let groupArray = [];
 
 export const runTracking = () => {
   const inputWrapper = document.createElement("div");
@@ -50,11 +63,15 @@ export const runTracking = () => {
     placeholder: "Enter group name",
   });
 
-  const button = document.createElement("button");
-  button.textContent = "Go";
+  const createButton = document.createElement("button");
+  createButton.textContent = "Go";
 
-  button.addEventListener("click", () => {
+  createButton.addEventListener("click", () => {
     console.log("runTracking: button press");
+
+    if (inputField.value === "") {
+      return;
+    }
 
     const groupName = inputField.value;
 
@@ -65,7 +82,24 @@ export const runTracking = () => {
     inputField.value = "";
   });
 
+  // editing of the groups
+
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "delete";
+
+  deleteButton.addEventListener("click", () => {
+    console.log("runTracking: delete button press");
+    groupArray.forEach((groupName) => {
+      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
+
+      matchingElements.forEach((el) => {
+        el.remove();
+      });
+    });
+  });
+
   inputWrapper.appendChild(inputField);
-  inputWrapper.appendChild(button);
+  inputWrapper.appendChild(createButton);
   document.body.appendChild(inputWrapper);
+  document.body.appendChild(deleteButton);
 };
