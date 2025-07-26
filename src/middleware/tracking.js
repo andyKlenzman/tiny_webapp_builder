@@ -198,6 +198,45 @@ export const runTracking = () => {
   const timestampButton = createTimestampButton();
   const deleteButton = createDeleteGroupButton();
 
+  let manualTimestamp = "";
+
+  const manualTimeWrapper = document.createElement("div");
+  manualTimeWrapper.classList.add("flex-row");
+
+  const manualTimeButton = document.createElement("button");
+  manualTimeButton.textContent = "enter";
+
+  manualTimeButton.addEventListener("click", () => {
+    console.log("runTracking: manualTimeButton: press");
+
+    selectedGroups.forEach((groupName) => {
+      const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
+
+      matchingElements.forEach((el) => {
+        let listElement = el.querySelector("ul");
+
+        if (listElement === null || manualTimestamp === "") return;
+
+        let listItem = document.createElement("li");
+        listItem.textContent = manualTimestamp;
+
+        listElement.appendChild(listItem);
+      });
+    });
+  });
+
+  const manualTimeInput = document.createElement("input");
+
+  manualTimeInput.type = "datetime-local";
+  manualTimeInput.addEventListener("input", (e) => {
+    const localValue = manualTimeInput.value;
+    if (!localValue) return;
+
+    const localDate = new Date(localValue);
+
+    manualTimestamp = localDate.toISOString(); // z. B. "2025-07-26T16:30:00.000Z"
+  });
+
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(createButton);
   document.body.appendChild(inputWrapper);
@@ -208,4 +247,7 @@ export const runTracking = () => {
 
   document.body.appendChild(timestampButton);
   document.body.appendChild(deleteButton);
+
+  manualTimeWrapper.append(manualTimeInput, manualTimeButton);
+  document.body.appendChild(manualTimeWrapper);
 };
