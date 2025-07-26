@@ -2,18 +2,84 @@
 
 // import {server} to do add layer
 
+/*/ ///////////////////////////////////////////////////
+// Defines
+////////////////////////////////////////////////////*/
+export const EVENTS = {
+  ERROR: "app:error",
+  SUCCESS: "app:success",
+  LOADING: "app:loading",
+};
+
+const STATUS_BAR = {
+  AUTO_CLEAR_MS: 3000,
+  DEFAULT_COLOR: "grey", // TODO: make a class
+};
+
+let selectedGroups = [];
+let selectedItems = [];
+
 const viewModes = ["streak", "itemList", "editListItems"];
 let currentViewMode = "streak";
 
 /*/ ///////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////*/
+const runStatusBarTest = () => {
+  let toggle = false;
+  setInterval(() => {
+    console.log("emit");
+    if (toggle) {
+      EventBus.emit(EVENTS.ERROR, "Test error");
+    } else {
+      EventBus.emit(EVENTS.SUCCESS, "Test success");
+    }
+    toggle = !toggle;
+  }, 2000);
+};
+
+/*/ ///////////////////////////////////////////////////
+// Event Bus
+////////////////////////////////////////////////////*/
+const EventBus = {
+  events: {},
+
+  on(event, handler) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event].push(handler);
+  },
+
+  emit(event, payload) {
+    if (this.events[event]) {
+      this.events[event].forEach((handler) => handler(payload));
+    }
+  },
+};
+
+/*/ ///////////////////////////////////////////////////
 // Internal utils 
 ////////////////////////////////////////////////////*/
+const resetSelection = () => {
+  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+
+  selectedGroups = [];
+  selectedItems = [];
+};
+
 const setViewMode = (data, mode) => {
   // Sets the state globally, so new groups are aware of how they should set their classes
   currentViewMode = mode;
 
   const streakEl = data.querySelectorAll('[data-type="streak"]');
   const itemListEl = data.querySelectorAll('[data-type="itemList"]');
+
+  const itemListCheckboxEl = data.querySelectorAll(
+    '[data-type="itemListCheckbox"]'
+  );
+
+  resetSelection();
 
   switch (mode) {
     case "streak":
@@ -24,6 +90,10 @@ const setViewMode = (data, mode) => {
       });
 
       itemListEl.forEach((el) => {
+        el.classList.add("hidden");
+      });
+
+      itemListCheckboxEl.forEach((el) => {
         el.classList.add("hidden");
       });
 
@@ -39,11 +109,65 @@ const setViewMode = (data, mode) => {
       itemListEl.forEach((el) => {
         el.classList.remove("hidden");
       });
+
+      itemListCheckboxEl.forEach((el) => {
+        el.classList.add("hidden");
+      });
+      break;
+
+    case "editListItems":
+      console.log("viewSelection: itemList");
+
+      streakEl.forEach((el) => {
+        el.classList.add("hidden");
+      });
+
+      itemListEl.forEach((el) => {
+        el.classList.remove("hidden");
+      });
+
+      itemListCheckboxEl.forEach((el) => {
+        el.classList.remove("hidden");
+      });
   }
 };
 
 /*/ ///////////////////////////////////////////////////
-// Internal component creation  
+// SMALL component creation  
+////////////////////////////////////////////////////*/
+const createListItem = (textContent) => {
+  let listItem = document.createElement("li");
+  listItem.dataset.id = textContent; // TODO: change to ID
+
+  listItem.classList.add("flex-row");
+
+  let listItemText = document.createElement("p");
+  listItemText.textContent = textContent;
+
+  let listItemCheckbox = document.createElement("input");
+  listItemCheckbox.type = "checkbox";
+  listItemCheckbox.dataset.type = "itemListCheckbox";
+
+  listItemCheckbox.addEventListener("change", (e) => {
+    if (e.target.checked) {
+      if (!selectedGroups.includes(textContent)) {
+        selectedItems.push(textContent);
+      }
+    } else {
+      selectedItems = selectedGroups.filter((name) => name !== textContent);
+    }
+    console.log(selectedItems);
+  });
+
+  listItem.append(listItemCheckbox, listItemText);
+
+  setViewMode(listItem, currentViewMode);
+
+  return listItem;
+};
+
+/*/ ///////////////////////////////////////////////////
+// BIG component creation  
 ////////////////////////////////////////////////////*/
 
 const createManualTimestampInput = () => {
@@ -93,7 +217,6 @@ const createManualTimestampInput = () => {
 
 const createGroupComponent = ({ groupName }) => {
   const groupWrapper = document.createElement("div");
-  groupWrapper.dataset.type = "group";
   groupWrapper.id = groupName;
 
   const groupHeading = document.createElement("div");
@@ -143,6 +266,14 @@ const createDeleteGroupButton = () => {
 
   deleteButton.addEventListener("click", () => {
     console.log("runTracking: delete button press");
+
+    selectedItems.forEach((item) => {
+      const matchingElements = document.querySelectorAll(`[data-id="${item}"]`);
+      matchingElements.forEach((el) => {
+        el.remove();
+      });
+    });
+
     selectedGroups.forEach((groupName) => {
       const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
       matchingElements.forEach((el) => {
@@ -170,8 +301,7 @@ const createTimestampButton = () => {
 
         if (listElement === null) return;
 
-        let listItem = document.createElement("li");
-        listItem.textContent = new Date().toISOString();
+        let listItem = createListItem(new Date().toISOString());
 
         listElement.appendChild(listItem);
       });
@@ -238,12 +368,41 @@ const createGroupInputComponent = () => {
   return inputWrapper;
 };
 
+const createStatusBar = () => {
+  const statusIndicator = document.createElement("div");
+  statusIndicator.classList.add("status-indicator");
+
+  EventBus.on(EVENTS.ERROR, (payload) => {
+    console.log(payload);
+    statusIndicator.textContent = payload;
+    statusIndicator.style.backgroundColor = "red";
+
+    setTimeout(() => {
+      statusIndicator.textContent = "";
+      statusIndicator.style.backgroundColor = STATUS_BAR.DEFAULT_COLOR;
+    }, 1000);
+  });
+
+  EventBus.on(EVENTS.SUCCESS, (payload) => {
+    console.log(payload);
+    statusIndicator.textContent = payload;
+    statusIndicator.style.backgroundColor = "green";
+
+    setTimeout(() => {
+      statusIndicator.textContent = "";
+      statusIndicator.style.backgroundColor = STATUS_BAR.DEFAULT_COLOR;
+    }, STATUS_BAR.AUTO_CLEAR_MS);
+  });
+
+  return statusIndicator;
+};
+
 /*/ ///////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////*/
-let selectedGroups = [];
-
 export const runTracking = () => {
+  const statusBar = createStatusBar();
+
   const groupInputComponent = createGroupInputComponent();
 
   const viewSelectDropdown = createViewSelectDropdown();
@@ -252,6 +411,8 @@ export const runTracking = () => {
   const deleteButton = createDeleteGroupButton();
   const manualTimestampField = createManualTimestampInput();
 
-  document.body.append(groupInputComponent, viewSelectDropdown);
+  document.body.append(statusBar, groupInputComponent, viewSelectDropdown);
   document.body.append(timestampButton, deleteButton, manualTimestampField);
+
+  runStatusBarTest();
 };

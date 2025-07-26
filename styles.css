@@ -102,6 +102,28 @@ html, body {
 
 
 
+/*////////////////////////////////////////////////////
+// Status Indicator
+////////////////////////////////////////////////////*/
+.status-indicator {
+  position: fixed;           /* immer sichtbar, unabhängig vom Scrollen */
+  left: 0;
+  right: 0;
+  height: 40px;              /* oder kleiner je nach Design */
+  background-color: grey;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  z-index: 9999;             /* ganz oben über allem */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  bottom: 0;
+
+}
+
+
+
 
 
 
@@ -118,3 +140,5 @@ html, body {
 .hidden {
   display: none;
 }
+
+
