@@ -1,5 +1,4 @@
 // it can be that this app is so simple, the middleware actuallydoes not need to exist and app can live on the top level.
-import { createGroupComponent } from "../core/ui/atoms/uiAtoms";
 
 // import {server} to do add layer
 
@@ -23,16 +22,21 @@ const createInputFieldComponent = ({ placeholder, onInputCb }) => {
   return input;
 };
 
-const createTrackingGroupComponent = ({ groupName }) => {
-  const trackingGroupWrapper = document.createElement("div");
-  trackingGroupWrapper.className = "flex-row";
-  trackingGroupWrapper.id = groupName;
+const createGroupComponent = ({ groupName }) => {
+  const groupWrapper = document.createElement("div");
+  groupWrapper.id = groupName;
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.id = groupName;
+  const groupHeading = document.createElement("div");
+  groupHeading.className = "flex-row";
 
-  checkbox.addEventListener("change", (e) => {
+  const groupTitle = document.createElement("h2");
+  groupTitle.textContent = groupName;
+
+  const groupCheckbox = document.createElement("input");
+  groupCheckbox.type = "checkbox";
+  groupCheckbox.id = groupName; // TODO: gibt es ein besser weg es zu machen?
+
+  groupCheckbox.addEventListener("change", (e) => {
     if (e.target.checked) {
       if (!selectedGroups.includes(groupName)) {
         selectedGroups.push(groupName);
@@ -43,12 +47,20 @@ const createTrackingGroupComponent = ({ groupName }) => {
     console.log(selectedGroups);
   });
 
-  const newGroup = createGroupComponent({ title: groupName });
+  groupHeading.appendChild(groupCheckbox);
+  groupHeading.appendChild(groupTitle);
 
-  trackingGroupWrapper.appendChild(checkbox);
-  trackingGroupWrapper.appendChild(newGroup.element);
+  // TODO: irgendwie mach das erweitbar, also ich es wiklich viel sachen hinzufugen kann
+  const groupStreak = document.createElement("p");
+  groupStreak.textContent = "Streak: 1";
 
-  return trackingGroupWrapper;
+  const groupList = document.createElement("ul");
+
+  groupWrapper.appendChild(groupHeading);
+  groupWrapper.appendChild(groupStreak);
+  groupWrapper.appendChild(groupList);
+
+  return groupWrapper;
 };
 
 const createDeleteGroupButton = () => {
@@ -86,7 +98,7 @@ const createTimestampButton = () => {
         if (listElement === null) return;
 
         let listItem = document.createElement("li");
-        listItem.textContent = "test";
+        listItem.textContent = new Date().toISOString();
 
         listElement.appendChild(listItem);
       });
@@ -102,14 +114,17 @@ const createTimestampButton = () => {
 let selectedGroups = [];
 
 export const runTracking = () => {
+  // input field
   const inputWrapper = document.createElement("div");
-  inputWrapper.className = "flex-row"
+  inputWrapper.className = "flex-row";
   const inputField = createInputFieldComponent({
     placeholder: "Enter group name",
   });
 
   const createButton = document.createElement("button");
   createButton.textContent = "create";
+
+  const groupList = document.createElement("div");
 
   createButton.addEventListener("click", () => {
     console.log("runTracking: button press");
@@ -118,10 +133,9 @@ export const runTracking = () => {
 
     const groupName = inputField.value;
 
-    const newTrackingGroup = createTrackingGroupComponent({ groupName });
+    const newGroup = createGroupComponent({ groupName });
 
-    document.body.appendChild(newTrackingGroup);
-
+    groupList.appendChild(newGroup);
     inputField.value = "";
   });
 
@@ -133,6 +147,9 @@ export const runTracking = () => {
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(createButton);
   document.body.appendChild(inputWrapper);
+
+  document.body.appendChild(groupList);
+
   document.body.appendChild(timestampButton);
   document.body.appendChild(deleteButton);
 };
