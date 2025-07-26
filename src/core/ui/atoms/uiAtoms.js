@@ -5,10 +5,6 @@
 /*/ ///////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////*/
-
-
-
-// TODO: move me
 export const createGroupComponent = ({ title }) => {
   const wrapper = document.createElement("div");
   const heading = document.createElement("h2");
@@ -27,8 +23,3 @@ export const createGroupComponent = ({ title }) => {
   };
 };
 
-export const createListItemComponent = ({ title }) => {
-  const item = document.createElement("li");
-  item.textContent = title;
-  return item;
-};

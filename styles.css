@@ -102,3 +102,17 @@ html, body {
 .item-container.hidden {
   display: none;
 }
+
+
+
+
+
+
+/*////////////////////////////////////////////////////
+// Utils
+////////////////////////////////////////////////////*/
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
