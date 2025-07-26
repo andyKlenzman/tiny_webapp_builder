@@ -5,34 +5,7 @@
 /*/ ///////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////*/
-export const createInputFieldComponent = ({
-  placeholder,
-  onInputCb
-}) => {
-  const wrapper = document.createElement("div");
 
-  const input = document.createElement("input");
-
-  input.type = "text";
-  input.placeholder = placeholder;
-
-  input.addEventListener("input", (e) => {
-    onInputCb(e.target.value);
-  });
-
-  wrapper.appendChild(input);
-
-  return wrapper;
-};
-
-export const createButtonComponent = ({ title, onPressCb }) => {
-  const button = document.createElement("button");
-  button.textContent = title;
-  button.addEventListener("click", (e) => {
-    onPressCb();
-  });
-  return button;
-};
 
 
 // TODO: move me

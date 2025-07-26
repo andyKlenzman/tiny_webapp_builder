@@ -1,7 +1,5 @@
 // it can be that this app is so simple, the middleware actuallydoes not need to exist and app can live on the top level.
 import {
-  createButtonComponent,
-  createInputFieldComponent,
   createGroupComponent,
   createListItemComponent,
 } from "../core/ui/atoms/uiAtoms";
@@ -11,30 +9,35 @@ import {
 // Wie kann ich den Eingagefeld entleeren? aber den schichten beibehalten?
 let groupName = "";
 
-const onInputCb = (params, context) => {
-  groupName = params;
-  console.log("onInputCb: groupName: ", groupName);
-};
+export const createInputFieldComponent = ({ placeholder, onInputCb }) => {
+  const input = document.createElement("input");
 
-const onPressCb = () => {
-  console.log("onPressCn: ", groupName);
+  input.type = "text";
+  input.placeholder = placeholder;
 
-  const newGroup = createGroupComponent({ title: groupName });
+  input.addEventListener("input", (e) => {
+    groupName = e.target.value;
+    console.log("onInputCb: groupName: ", groupName);
+  });
 
-  document.body.appendChild(newGroup.element);
-  groupName = "";
-
-  // TODO: Kann ich eingabe irgendwie hier zurucksetzen?
+  return input;
 };
 
 export const runTracking = () => {
   const inputWrapper = document.createElement("div");
 
   const inputField = createInputFieldComponent({
-    placeholder: "Enter group name",
-    onInputCb,
+    placeholder: "Enter group name",});
+
+  const button = document.createElement("button");
+  button.textContent = "Go";
+  button.addEventListener("click", (e) => {
+    console.log("runTracking: button press");
+    const newGroup = createGroupComponent({ title: groupName });
+    document.body.appendChild(newGroup.element);
+    groupName = "";
+    inputField.value = "";
   });
-  const button = createButtonComponent({ title: "Go", onPressCb });
 
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(button);
