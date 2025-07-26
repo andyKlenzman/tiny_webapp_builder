@@ -27,20 +27,26 @@ export const runTracking = () => {
   const inputWrapper = document.createElement("div");
 
   const inputField = createInputFieldComponent({
-    placeholder: "Enter group name",});
+    placeholder: "Enter group name",
+  });
 
   const button = document.createElement("button");
   button.textContent = "Go";
-  button.addEventListener("click", (e) => {
+
+  button.addEventListener("click", () => {
     console.log("runTracking: button press");
+
+    const groupName = inputField.value;
     const newGroup = createGroupComponent({ title: groupName });
+
     document.body.appendChild(newGroup.element);
-    groupName = "";
+
     inputField.value = "";
+
+
   });
 
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(button);
-
   document.body.appendChild(inputWrapper);
 };
