@@ -79,9 +79,6 @@ html, body {
 }
 
 
-.group-delete.hidden {
-  display: none;
-}
 
 .group {
   border: 1px solid #ccc;
@@ -115,4 +112,9 @@ html, body {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+
+.hidden {
+  display: none;
 }

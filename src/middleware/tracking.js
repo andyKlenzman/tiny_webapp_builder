@@ -3,11 +3,48 @@
 // import {server} to do add layer
 
 // Wie kann ich den Eingagefeld entleeren? aber den schichten beibehalten?
-let groupName = "";
+let groupName = ""; //TODO: delete me
+
+const viewModes = ["streak", "itemList"];
+const defaultViewMode = "streak";
+let currentViewMode = "streak";
 
 /*/ ///////////////////////////////////////////////////
 // Internal APIs
 ////////////////////////////////////////////////////*/
+const setViewMode = (data, mode) => {
+  // Sets the state globally, so new groups are aware of how they should set their classes
+  currentViewMode = mode;
+
+  const streakEl = data.querySelectorAll('[data-type="streak"]');
+  const itemListEl = data.querySelectorAll('[data-type="itemList"]');
+
+  switch (mode) {
+    case "streak":
+      console.log("viewSelection: streak");
+
+      streakEl.forEach((el) => {
+        el.classList.remove("hidden");
+      });
+
+      itemListEl.forEach((el) => {
+        el.classList.add("hidden");
+      });
+
+      break;
+
+    case "itemList":
+      console.log("viewSelection: itemList");
+
+      streakEl.forEach((el) => {
+        el.classList.add("hidden");
+      });
+
+      itemListEl.forEach((el) => {
+        el.classList.remove("hidden");
+      });
+  }
+};
 
 const createInputFieldComponent = ({ placeholder, onInputCb }) => {
   const input = document.createElement("input");
@@ -22,8 +59,9 @@ const createInputFieldComponent = ({ placeholder, onInputCb }) => {
   return input;
 };
 
-const createGroupComponent = ({ groupName }) => {
+const createGroupComponent = ({ groupName, viewMode }) => {
   const groupWrapper = document.createElement("div");
+  groupWrapper.dataset.type = "group";
   groupWrapper.id = groupName;
 
   const groupHeading = document.createElement("div");
@@ -52,13 +90,17 @@ const createGroupComponent = ({ groupName }) => {
 
   // TODO: irgendwie mach das erweitbar, also ich es wiklich viel sachen hinzufugen kann
   const groupStreak = document.createElement("p");
+  groupStreak.dataset.type = "streak";
   groupStreak.textContent = "Streak: 1";
 
   const groupList = document.createElement("ul");
+  groupList.dataset.type = "itemList";
 
   groupWrapper.appendChild(groupHeading);
   groupWrapper.appendChild(groupStreak);
   groupWrapper.appendChild(groupList);
+
+  setViewMode(groupWrapper, currentViewMode);
 
   return groupWrapper;
 };
@@ -71,7 +113,6 @@ const createDeleteGroupButton = () => {
     console.log("runTracking: delete button press");
     selectedGroups.forEach((groupName) => {
       const matchingElements = document.querySelectorAll(`[id="${groupName}"]`);
-
       matchingElements.forEach((el) => {
         el.remove();
       });
@@ -114,7 +155,9 @@ const createTimestampButton = () => {
 let selectedGroups = [];
 
 export const runTracking = () => {
-  // input field
+  const groupList = document.createElement("div");
+
+  // Input field
   const inputWrapper = document.createElement("div");
   inputWrapper.className = "flex-row";
   const inputField = createInputFieldComponent({
@@ -124,11 +167,8 @@ export const runTracking = () => {
   const createButton = document.createElement("button");
   createButton.textContent = "create";
 
-  const groupList = document.createElement("div");
-
   createButton.addEventListener("click", () => {
     console.log("runTracking: button press");
-
     if (inputField.value === "") return;
 
     const groupName = inputField.value;
@@ -139,14 +179,30 @@ export const runTracking = () => {
     inputField.value = "";
   });
 
-  // editing of the groups
+  // View selection
+  // TODO: add caching
+  const dropdown = document.createElement("select");
 
+  viewModes.forEach((mode) => {
+    const option = document.createElement("option");
+    option.textContent = mode;
+    option.value = mode;
+    dropdown.appendChild(option);
+  });
+
+  dropdown.addEventListener("change", (e) => {
+    setViewMode(document, e.target.value);
+  });
+
+  // editing of the groups
   const timestampButton = createTimestampButton();
   const deleteButton = createDeleteGroupButton();
 
   inputWrapper.appendChild(inputField);
   inputWrapper.appendChild(createButton);
   document.body.appendChild(inputWrapper);
+
+  document.body.appendChild(dropdown);
 
   document.body.appendChild(groupList);
 
