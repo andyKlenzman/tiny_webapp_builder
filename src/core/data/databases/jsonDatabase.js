@@ -4,10 +4,8 @@ let store = load();
 let fileId = 1000;
 
 function load() {
-  if (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY));
-  }
-  return { users: {}, posts: {} };
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : {}; // kein { groups: {}, posts: {} }
 }
 
 function save() {

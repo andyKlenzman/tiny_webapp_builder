@@ -1,65 +1,78 @@
 import { DB } from "../../core/data/dataAccessLayer";
 
-const groupsCollectionLabel = "groups";
-const itemsCollectionLabel = "items";
-
-const runJsonDbTests = async () => {
-  console.log("runJsonDbTests: START");
-  // add group
-  let newGroup = { name: "newGroupA" };
-  let { id } = await DB.add(groupsCollectionLabel, newGroup);
-
-  newGroup = { name: "newGroupB" };
-  id = await DB.add(groupsCollectionLabel, newGroup);
-
-  console.log("runJsonDbTests: END");
+/*/ ///////////////////////////////////////////////////
+// Defines
+////////////////////////////////////////////////////*/
+const LABELS = {
+  GROUPS: "groups",
+  ITEMS: "items",
 };
 
+/*/ ///////////////////////////////////////////////////
+// Debug Components 
+////////////////////////////////////////////////////*/
+// TODO: entkoppeln JSON
+const showJsonDbContents = async () => {
+  let raw_groups = await DB.getAll(LABELS.GROUPS);
+  let raw_items = await DB.getAll(LABELS.ITEMS);
+
+  let data = {
+    groups: raw_groups,
+    items: raw_items,
+  };
+
+  let pretty = JSON.stringify(data, null, 2);
+
+  let oldPreview = document.getElementById("json-preview");
+  if (oldPreview) oldPreview.remove();
+
+  let jsonPreview = document.createElement("pre");
+  jsonPreview.id = "json-preview";
+  jsonPreview.textContent = pretty;
+  document.body.prepend(jsonPreview);
+};
+
+/*/ ///////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////*/
+const runDbTests = async () => {
+  console.log("runDbTests: START");
+
+  const groupA = { name: "GroupA" };
+  const groupB = { name: "GroupB" };
+  const groupC = { name: "GroupC" };
+  const groupAId = (await DB.add(LABELS.GROUPS, groupA)).id;
+  const groupBId = (await DB.add(LABELS.GROUPS, groupB)).id;
+  const groupCId = (await DB.add(LABELS.GROUPS, groupC)).id;
+
+  const itemA = { name: "ItemA" };
+  const itemB = { name: "ItemB" };
+  const itemC = { name: "ItemC" };
+  const itemAId = (await DB.add(LABELS.ITEMS, itemA)).id;
+  const itemBId = (await DB.add(LABELS.ITEMS, itemB)).id;
+  const itemCId = (await DB.add(LABELS.ITEMS, itemC)).id;
+
+  await DB.deleteById(LABELS.GROUPS, groupAId);
+  await DB.deleteById(LABELS.ITEMS, itemAId);
+
+  await showJsonDbContents();
+
+  const foundGroup = await DB.getWhere(LABELS.GROUPS, "name", "GroupB");
+  const foundItem = await DB.getWhere(LABELS.ITEMS, "name", "ItemB");
+
+  console.log("getWhere GroupB:", foundGroup);
+  console.log("getWhere ItemB:", foundItem);
+
+  await showJsonDbContents();
+
+  console.log("runDbTests: END");
+};
+
+/*/ ///////////////////////////////////////////////////
+// Public API
+////////////////////////////////////////////////////*/
 const runDataTests = async () => {
-  runJsonDbTests();
+  runDbTests();
 };
 
 export default runDataTests;
-
-/*/ ///////////////////////////////////////////////////
-// Archive
-////////////////////////////////////////////////////*/
-
-// // Beispiel-Datenmodell definieren (könnte aus appModels.js kommen)
-// const newUser = { name: "Charlie", age: 40 };
-
-// // Hinzufügen
-// const { id } = await DB.add("users", newUser);
-// console.assert(typeof id === "string", "✅ User wurde hinzugefügt");
-
-// // Alle abrufen
-// const allUsers = await DB.getAll("users");
-// console.assert(
-//   allUsers.some((u) => u.name === "Charlie"),
-//   "✅ Neuer User taucht in getAll() auf"
-// );
-
-// // Nach Attribut filtern
-// const foundUsers = await DB.getWhere("users", "age", 40);
-// console.assert(
-//   foundUsers.length > 0 && foundUsers[0].name === "Charlie",
-//   "✅ getWhere() funktioniert"
-// );
-
-// // Löschen
-// await DB.deleteById("users", id);
-// const afterDelete = await DB.getAll("users");
-// console.assert(
-//   !afterDelete.some((u) => u.id === id),
-//   "✅ User erfolgreich gelöscht"
-// );
-
-// const runFirebaseTests = async () => {
-//   let res = firebaseGetDocsByCollection(groupsCollectionLabel);
-//   console.log("getCollection", res);
-
-//   let docRefA = await firebaseAddDoc(groupsCollectionLabel, { name: "you" });
-//   let docRefB = await firebaseAddDoc(groupsCollectionLabel, { name: "hey" });
-
-//   await firebaseDeleteDocsByField("groups", "name", "hey");
-// };
