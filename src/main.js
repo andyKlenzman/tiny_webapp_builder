@@ -1,7 +1,3 @@
-import { runTests } from "./tests/tests";
+import renderApp from "./controller/controller";
 
-const runApp = () => {
-  runTests();
-};
-
-runApp();
+renderApp();

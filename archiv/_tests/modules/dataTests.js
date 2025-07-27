@@ -1,4 +1,4 @@
-import { DB } from "../../core/data/dataAccessLayer";
+import { DB } from "../../../src/model/dataAccess/dataAccessInterface";
 
 /*/ ///////////////////////////////////////////////////
 // Defines
