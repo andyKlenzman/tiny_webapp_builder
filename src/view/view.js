@@ -1,26 +1,28 @@
-// is this an element or a component?
-
-// el
-// refs
-// api
-
 //////////////////////////////////////////////////////
 // View
 //////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////
-// Create Elements
+// Atoms
 //////////////////////////////////////////////////////
 export const createButtonElement = (textContent) => {
   let button = document.createElement("button");
   button.textContent = textContent;
 
-  return {
-    el: button,
-  };
+  return button;
 };
 
-export const createInputElement = () => {
+export const createGroupList = () => {
+  let groupList = document.createElement("ul");
+
+  return groupList;
+};
+
+//////////////////////////////////////////////////////
+// Compounds
+//////////////////////////////////////////////////////
+
+export const createInputElements = () => {
   let inputWrapper = document.createElement("div");
   inputWrapper.className = "flex-row";
 
@@ -28,34 +30,26 @@ export const createInputElement = () => {
   inputField.type = "text";
   inputField.placeholder = "group name";
 
-  let inputButton = createButtonElement("enter").el;
+  let inputButton = createButtonElement("enter");
 
   inputWrapper.append(inputField, inputButton);
 
-  return {
-    el: inputWrapper,
-    refs: { inputField, inputButton },
-  };
+  return { inputWrapper, inputField, inputButton };
 };
 
-export const createGroupList = () => {
-  let groupList = document.createElement("ul");
-
-  return { el: groupList };
-};
-
-export const createGroup = (id) => {
+export const createGroupElements = (id, name, onCheckboxToggle) => {
   let groupWrapper = document.createElement("div");
-
+  groupWrapper.id = id;
 
   let groupHeaderWrapper = document.createElement("div");
   groupHeaderWrapper.classList.add("flex-row");
 
   let groupCheckbox = document.createElement("input");
   groupCheckbox.type = "checkbox";
+  groupCheckbox.addEventListener("change", () => onCheckboxToggle(id));
 
   let groupName = document.createElement("h2");
-  groupName.textContent = "test";
+  groupName.textContent = name;
 
   groupHeaderWrapper.append(groupCheckbox, groupName);
 
@@ -63,52 +57,12 @@ export const createGroup = (id) => {
 
   groupWrapper.append(groupHeaderWrapper, groupEntries);
 
-  const addEntry = () => {
-    let groupEntry = document.createElement("li");
-    groupEntry.textContent = "test";
-    groupEntries.append(groupEntry);
-  };
+  // TODO: delete or refactor 
+  // const addEntry = () => {
+  //   let groupEntry = document.createElement("li");
+  //   groupEntry.textContent = "test";
+  //   groupEntries.append(groupEntry);
+  // };
 
-  return {
-    el: groupWrapper,
-    refs: { groupName, groupCheckbox },
-    api: { addEntry },
-  };
+  return { groupWrapper, groupName, groupCheckbox };
 };
-
-//////////////////////////////////////////////////////
-// Public API - Create App View - Update App
-//////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////
-// Archive
-//////////////////////////////////////////////////////
-
-//TODO: implement me!
-// const createView = () => {
-//   let inputWrapper = document.createElement("div");
-//   inputWrapper.className = "flex-row";
-
-//   let inputField = document.createElement("input");
-//   inputField.type = "text";
-//   inputField.placeholder = "group name";
-
-//   let inputButton = document.createElement("button");
-//   createButton.textContent = "enter";
-
-//   inputWrapper.append(inputField, createButton);
-
-//   // returns a View Object with all of the possible components, very practical for the size of app id like to build
-//   // can also beiinhalten umfassen uberspannen beiinhalten umfassen ubersoannen beinhalten, umfassen, uberspannen, beiinhalten,, umfassen, uberspannen, beiinhalten
-//   return { wrapper, inputField, inputButton };
-// };
-
-// verorten innerhalb dem Element
-// export function updateGroupList(groups) {
-//   groupListContainer.innerHTML = "";
-//   groups.forEach((name) => {
-//     const el = document.createElement("p");
-//     el.textContent = name;
-//     groupListContainer.appendChild(el);
-//   });
-// }

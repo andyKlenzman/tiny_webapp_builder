@@ -1,8 +1,8 @@
-import { Model, MODEL_EVENTS } from "../model/Model";
+import { Model } from "../model/Model";
 import {
-  createInputElement,
+  createInputElements,
   createGroupList,
-  createGroup,
+  createGroupElements,
   createButtonElement,
 } from "../view/view";
 //////////////////////////////////////////////////////
@@ -10,14 +10,13 @@ import {
 //////////////////////////////////////////////////////
 const handleModelEventAddGroup = ({ payload }) => {
   console.log("handleModelEventAddGroup: payload: ", payload);
-  let newGroup = createGroup();
-  newGroup.el.id = payload.id;
+  let newGroup = createGroupElements(id);
 
-  newGroup.refs.groupCheckbox.addEventListener("change", (e) => {
+  newGroup.groupCheckbox.addEventListener("change", (e) => {
     Model.selectGroup(payload.id);
   });
 
-  payload.groupList.el.append(newGroup.el);
+  payload.groupList.append(newGroup.el);
 };
 
 const handleDeleteButtonClick = (e) => {
@@ -38,19 +37,19 @@ const handleInputFieldInput = (e) => {
 //////////////////////////////////////////////////////
 const createHandleInputButtonClick = (inputField, groupList) => {
   return () => {
-    const input = inputField.value.trim();
-    if (input === "") return;
+    const groupName = inputField.value.trim();
+    if (groupName === "") return;
 
-    console.log("handleInputButtonEvent: data: ", input);
+    console.log("handleInputButtonEvent: data: ", groupName);
 
-    Model.addGroup(input, groupList);
+    Model.addGroup(groupName, groupList);
 
     inputField.value = "";
   };
 };
 
 const createHandleModelEventDeleteGroup = (groupList) => {
-  return ({ids}) => {
+  return ({ ids }) => {
     console.log("handleModelEventDeleteGroup: ");
 
     ids.forEach((id) => {
@@ -62,35 +61,70 @@ const createHandleModelEventDeleteGroup = (groupList) => {
   };
 };
 
+const createHandleModelEventAddGroup = (groupList) => {
+  return (newGroupData) => {
+    console.log("handleModelEventAddGroup: id: ", newGroupData);
+    console.log("handleModelEventAddGroup: id: ", [newGroupData]);
+
+    let newGroup = createGroup();
+    newGroup.el.id = newGroupData;
+    newGroup.refs.groupName.textContent = id.groupName;
+
+    newGroup.refs.groupCheckbox.addEventListener("change", (e) => {
+      Model.selectGroup(payload.id);
+    });
+
+    groupList.el.append(newGroup.el);
+  };
+};
+
 //////////////////////////////////////////////////////
 // Entry Point
 //////////////////////////////////////////////////////
-const renderApp = () => {
-  const inputElement = createInputElement(); // View initialisieren
-  const groupList = createGroupList();
+const renderApp = async () => {
+  const state = await Model.init();
+  console.log(state);
 
-  const handleModelEventDeleteGroup =
-    createHandleModelEventDeleteGroup(groupList);
-  const handleInputButtonClick = createHandleInputButtonClick(
-    inputElement.refs.inputField,
-    groupList
-  );
+  const { inputWrapper, inputField, inputButton } = createInputElements();
+  const list = document.createElement("div");
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
 
-  inputElement.refs.inputField.addEventListener("input", handleInputFieldInput);
-  inputElement.refs.inputButton.addEventListener(
-    "click",
-    handleInputButtonClick
-  );
+  // Append initial groups
+  for (const [id, group] of Object.entries(state.groups)) {
+    const { groupWrapper } = createGroupElements(
+      group.id,
+      group.groupName,
+      (id) => Model.toggleGroupSelection(id)
+    );
+    list.append(groupWrapper);
+  }
 
-  const deleteButton = createButtonElement("delete");
-  deleteButton.el.addEventListener("click", handleDeleteButtonClick);
+  // Add Group Handler
+  inputButton.addEventListener("click", async () => {
+    const name = inputField.value.trim();
+    console.log("inputButtonClick: ", name);
+    if (!name) return;
 
-  Model.init();
+    const id = await Model.addGroup(name);
+    const { groupWrapper } = createGroupElements(id, name, (id) =>
+      Model.toggleGroupSelection(id)
+    );
+    list.append(groupWrapper);
+    inputField.value = "";
+  });
 
-  Model.subscribe(MODEL_EVENTS.ADD_GROUP, handleModelEventAddGroup);
-  Model.subscribe(MODEL_EVENTS.DELETE_GROUP, handleModelEventDeleteGroup);
+  // Delete Handler
+  deleteButton.addEventListener("click", () => {
+    Model.deleteSelectedGroups();
+    Array.from(list.children).forEach((child) => {
+      console.log(child);
+      if (!Model.state.groups[child.id]) {
+        child.remove();
+      }
+    });
+  });
 
-  document.body.append(inputElement.el, groupList.el, deleteButton.el);
+  document.body.append(inputWrapper, list, deleteButton);
 };
-
 export default renderApp;

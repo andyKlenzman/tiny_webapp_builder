@@ -3,18 +3,6 @@ import { DB } from "./dataAccess/dataAccessInterface";
 //////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////
-
-export const MODEL_EVENTS = {
-  UPDATE: "model:update",
-  ADD_GROUP: "model:addGroup",
-  SELECT_GROUP: "model:selectGroup",
-  DELETE_GROUP: "model:deleteGroup",
-};
-
-// export const GROUP_EVENTS = {
-//   ADD_GROUP: "group:addGroup",
-// };
-
 export const COLLECTIONS = {
   GROUPS: "groups",
 };
@@ -24,9 +12,10 @@ export const COLLECTIONS = {
 //////////////////////////////////////////////////////
 
 export const Model = {
-  events: {},
-
-  appState: {},
+  state: {
+    groups: {},
+    selectedGroups: [],
+  },
   // TODO: bin mir nicht sicher ob ich event spezielle abos einbauen sollte.
   // weil es meheere handlers aufm renderApp() funktion zwingt.
 
@@ -40,44 +29,40 @@ export const Model = {
       this.events[event].forEach((handler) => handler(payload));
     }
   },
-
   async init() {
-    this.appState.groups = await DB.getAll(COLLECTIONS.GROUPS);
-    this.emit(MODEL_EVENTS.UPDATE, this.getState());
+    this.state.groups = await DB.getAll("groups");
+    return this.getState();
   },
 
   getState() {
-    return JSON.parse(JSON.stringify(this.appState));
+    return JSON.parse(JSON.stringify(this.state));
   },
 
-  addGroup(group_name, groupList) {
-    const id = Date.now().toString();
-    this.appState.groups[id] = { group_name, timestamps: [] };
-    this.emit(MODEL_EVENTS.ADD_GROUP, {
-      payload: { id, group_name, groupList },
+  async addGroup(groupName) {
+    const group = { groupName, timestamps: [] };
+    const { id } = await DB.add("groups", group);
+    this.state.groups[id] = group;
+    console.log(this.state);
+    return id;
+  },
+
+  async deleteSelectedGroups() {
+    this.state.selectedGroups.forEach(async (id) => {
+      console.log(id);
+      await DB.deleteById(COLLECTIONS.GROUPS, id);
+      delete this.state.groups[id];
     });
+    this.state.selectedGroups = [];
+    return this.getState();
   },
 
-  deleteSelectedGroups() {
-    if (!this.appState.selectedGroups || !this.appState.groups) return;
-    this.appState.selectedGroups.forEach((id) => {
-      delete this.appState.groups[id];
-    });
-    this.appState.selectedGroups = [];
-    this.emit(MODEL_EVENTS.DELETE_GROUP, { ids: this.getState().selectedGroups });
-  },
-
-  selectGroup(id) {
-    if (!this.appState.selectedGroups) this.appState.selectedGroups = [];
-    const index = this.appState.selectedGroups.indexOf(id);
-
-    // If the item does not exist, indexOf returns -1
-    if (index == -1) {
-      this.appState.selectedGroups.push(id);
+  toggleGroupSelection(id) {
+    console.log(this.state);
+    const idx = this.state.selectedGroups.indexOf(id);
+    if (idx === -1) {
+      this.state.selectedGroups.push(id);
     } else {
-      this.appState.selectedGroups.splice(index, 1);
+      this.state.selectedGroups.splice(idx, 1);
     }
-    console.log(this.appState.selectedGroups);
-    this.emit(MODEL_EVENTS.SELECT_GROUP, {});
   },
 };
