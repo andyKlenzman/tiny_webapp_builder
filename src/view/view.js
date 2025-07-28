@@ -11,6 +11,15 @@
 //////////////////////////////////////////////////////
 // Create Elements
 //////////////////////////////////////////////////////
+export const createButtonElement = (textContent) => {
+  let button = document.createElement("button");
+  button.textContent = textContent;
+
+  return {
+    el: button,
+  };
+};
+
 export const createInputElement = () => {
   let inputWrapper = document.createElement("div");
   inputWrapper.className = "flex-row";
@@ -19,8 +28,7 @@ export const createInputElement = () => {
   inputField.type = "text";
   inputField.placeholder = "group name";
 
-  let inputButton = document.createElement("button");
-  inputButton.textContent = "enter";
+  let inputButton = createButtonElement("enter").el;
 
   inputWrapper.append(inputField, inputButton);
 
@@ -36,15 +44,24 @@ export const createGroupList = () => {
   return { el: groupList };
 };
 
-export const createGroup = () => {
+export const createGroup = (id) => {
   let groupWrapper = document.createElement("div");
+
+
+  let groupHeaderWrapper = document.createElement("div");
+  groupHeaderWrapper.classList.add("flex-row");
+
+  let groupCheckbox = document.createElement("input");
+  groupCheckbox.type = "checkbox";
 
   let groupName = document.createElement("h2");
   groupName.textContent = "test";
 
+  groupHeaderWrapper.append(groupCheckbox, groupName);
+
   let groupEntries = document.createElement("ul");
 
-  groupWrapper.append(groupName, groupEntries);
+  groupWrapper.append(groupHeaderWrapper, groupEntries);
 
   const addEntry = () => {
     let groupEntry = document.createElement("li");
@@ -52,7 +69,11 @@ export const createGroup = () => {
     groupEntries.append(groupEntry);
   };
 
-  return { el: groupWrapper, refs: { groupName }, api: { addEntry } };
+  return {
+    el: groupWrapper,
+    refs: { groupName, groupCheckbox },
+    api: { addEntry },
+  };
 };
 
 //////////////////////////////////////////////////////
