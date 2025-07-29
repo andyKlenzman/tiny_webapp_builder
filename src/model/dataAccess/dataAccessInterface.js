@@ -18,7 +18,10 @@ const database = jsonDatabase;
 //////////////////////////////////////////////////////
 export const DB = {
   getAll: database.getAll,
+  getById: database.getById,
   getWhere: database.getWhere,
   add: database.add,
+  update: database.update,
   deleteById: database.deleteById,
+  
 };

@@ -18,6 +18,22 @@ export const createGroupList = () => {
   return groupList;
 };
 
+export const createGroupEntry = (timestamp, onCheckboxToggle) => {
+  let entryWrapper = document.createElement("li");
+  entryWrapper.className = "flex-row";
+  entryWrapper.dataset.id = timestamp;
+
+  let entryText = document.createElement("p");
+  entryText.textContent = timestamp;
+
+  let entryCheckbox = document.createElement("input");
+  entryCheckbox.type = "checkbox";
+  entryCheckbox.addEventListener("change", () => onCheckboxToggle());
+
+  entryWrapper.append(entryCheckbox, entryText);
+
+  return { entryWrapper, entryText, entryCheckbox };
+};
 //////////////////////////////////////////////////////
 // Compounds
 //////////////////////////////////////////////////////
@@ -57,12 +73,12 @@ export const createGroupElements = (id, name, onCheckboxToggle) => {
 
   groupWrapper.append(groupHeaderWrapper, groupEntries);
 
-  // TODO: delete or refactor 
+  // TODO: delete or refactor
   // const addEntry = () => {
   //   let groupEntry = document.createElement("li");
   //   groupEntry.textContent = "test";
   //   groupEntries.append(groupEntry);
   // };
 
-  return { groupWrapper, groupName, groupCheckbox };
+  return { groupWrapper, groupName, groupCheckbox, groupEntries };
 };

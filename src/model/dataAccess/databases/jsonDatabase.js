@@ -18,6 +18,13 @@ export const jsonDatabase = {
     return store[collectionName] || {};
   },
 
+  async getById(collectionName, id) {
+    if (store[collectionName] && store[collectionName][id]) {
+      return store[collectionName][id];
+    }
+    return null;
+  },
+
   async getWhere(collectionName, field, value) {
     const collection = store[collectionName] || {};
     return Object.entries(collection)
@@ -32,8 +39,19 @@ export const jsonDatabase = {
     if (!store[collectionName]) store[collectionName] = {};
 
     store[collectionName][id] = data;
-    save();
     return { id };
+  },
+
+  async update(collectionName, id, data) {
+    if (store[collectionName] && store[collectionName][id]) {
+      store[collectionName][id] = {
+        ...store[collectionName][id],
+        ...data,
+      };
+      save();
+      return { id, ...store[collectionName][id] };
+    }
+    return null;
   },
 
   async deleteById(collectionName, id) {

@@ -4,6 +4,7 @@ import {
   createGroupList,
   createGroupElements,
   createButtonElement,
+  createGroupEntry,
 } from "../view/view";
 //////////////////////////////////////////////////////
 // Model Handlers
@@ -87,13 +88,19 @@ const renderApp = async () => {
 
   const { inputWrapper, inputField, inputButton } = createInputElements();
   const list = document.createElement("div");
+
+  const addTimestampButton = document.createElement("button");
+  addTimestampButton.textContent = "addTimestamp";
+
   const deleteButton = document.createElement("button");
-  deleteButton.textContent = "Delete";
+  deleteButton.textContent = "delete";
 
   // Append initial groups
   for (const [id, group] of Object.entries(state.groups)) {
-    const { groupWrapper } = createGroupElements(id, group.groupName, (id) =>
-      Model.toggleGroupSelection(id)
+    const { groupWrapper, groupEntries } = createGroupElements(
+      id,
+      group.groupName,
+      (id) => Model.toggleGroupSelection(id)
     );
     list.append(groupWrapper);
   }
@@ -112,6 +119,23 @@ const renderApp = async () => {
     inputField.value = "";
   });
 
+  addTimestampButton.addEventListener("click", async () => {
+    const timestamp = await Model.addTimestampToGroup();
+    const state = await Model.getState();
+    console.log("addTimestampButton: ", timestamp);
+
+    state.selectedGroups.forEach((groupId) => {
+      const groupComponent = list.querySelector(`[id="${groupId}"]`);
+
+      if (groupComponent) {
+        const { entryWrapper } = createGroupEntry(timestamp, () => {
+          Model.toggleTimestampSelection(groupId, timestamp);
+        });
+
+        groupComponent.appendChild(entryWrapper);
+      }
+    });
+  });
   // Delete Handler
   deleteButton.addEventListener("click", async () => {
     const state = await Model.deleteSelectedGroups();
@@ -123,6 +147,6 @@ const renderApp = async () => {
     });
   });
 
-  document.body.append(inputWrapper, list, deleteButton);
+  document.body.append(inputWrapper, list, deleteButton, addTimestampButton);
 };
 export default renderApp;

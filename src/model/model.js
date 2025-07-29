@@ -15,22 +15,10 @@ export const Model = {
   state: {
     groups: {},
     selectedGroups: [],
-  },
-  // TODO: bin mir nicht sicher ob ich event spezielle abos einbauen sollte.
-  // weil es meheere handlers aufm renderApp() funktion zwingt.
-
-  subscribe(event, handler) {
-    if (!this.events[event]) this.events[event] = [];
-    this.events[event].push(handler);
+    selectedTimestamps: [],
   },
 
-  emit(event, payload) {
-    if (this.events[event]) {
-      this.events[event].forEach((handler) => handler(payload));
-    }
-  },
   async init() {
-    this.state.groups = await DB.getAll(COLLECTIONS.GROUPS);
     return this.getState();
   },
 
@@ -55,12 +43,29 @@ export const Model = {
       await DB.deleteById(COLLECTIONS.GROUPS, id);
       delete this.state.groups[id];
     });
-    this.state.selectedGroups = [];
+    this.state.selectedGroups = []; // TODO: evaluate nme
     return await this.getState();
   },
 
+  async addTimestampToGroup() {
+    const timestamp = new Date().toISOString();
+
+    this.state.selectedGroups.forEach(async (id) => {
+      let doc = await DB.getById(COLLECTIONS.GROUPS, id);
+      console.log("addTimestampToGroup: doc:", doc);
+
+      doc.timestamps.push(timestamp);
+
+      console.log("addTimestampToGroup: doc:", doc);
+
+      await DB.update(COLLECTIONS.GROUPS, id, doc);
+    });
+
+    return timestamp;
+  },
+
   toggleGroupSelection(id) {
-    console.log("toggleGroupSelection: SelectedIdd: ",id)
+    console.log("toggleGroupSelection: SelectedIdd: ", id);
     const idx = this.state.selectedGroups.indexOf(id);
     if (idx === -1) {
       this.state.selectedGroups.push(id);
@@ -70,4 +75,25 @@ export const Model = {
 
     console.log("toggleGroupSelection: selected: ", this.state.selectedGroups);
   },
+
+  toggleTimestampSelection(groupId, timestamp) {
+    console.log("toggleTimestampSelection: ", groupId, timestamp);
+
+    if (!this.state.selectedTimestamps[groupId])
+      this.state.selectedTimestamps[groupId] = [];
+
+    const idx = this.state.selectedTimestamps[groupId].indexOf(timestamp);
+    if (idx === -1) {
+      this.state.selectedTimestamps[groupId].push(timestamp);
+    } else {
+      this.state.selectedTimestamps[groupId].splice(idx, 1);
+    }
+
+    console.log(
+      "toggleTimestampSelection: selected: ",
+      this.state.selectedTimestamps
+    );
+  },
+
+  // get rid of selected items from app
 };
