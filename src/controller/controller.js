@@ -83,7 +83,7 @@ const createHandleModelEventAddGroup = (groupList) => {
 //////////////////////////////////////////////////////
 const renderApp = async () => {
   const state = await Model.init();
-  console.log(state);
+  console.log("renderApp: initialState:", state.groups);
 
   const { inputWrapper, inputField, inputButton } = createInputElements();
   const list = document.createElement("div");
@@ -92,10 +92,8 @@ const renderApp = async () => {
 
   // Append initial groups
   for (const [id, group] of Object.entries(state.groups)) {
-    const { groupWrapper } = createGroupElements(
-      group.id,
-      group.groupName,
-      (id) => Model.toggleGroupSelection(id)
+    const { groupWrapper } = createGroupElements(id, group.groupName, (id) =>
+      Model.toggleGroupSelection(id)
     );
     list.append(groupWrapper);
   }
@@ -115,11 +113,11 @@ const renderApp = async () => {
   });
 
   // Delete Handler
-  deleteButton.addEventListener("click", () => {
-    Model.deleteSelectedGroups();
+  deleteButton.addEventListener("click", async () => {
+    const state = await Model.deleteSelectedGroups();
+    console.log(state);
     Array.from(list.children).forEach((child) => {
-      console.log(child);
-      if (!Model.state.groups[child.id]) {
+      if (!state.groups[child.id]) {
         child.remove();
       }
     });

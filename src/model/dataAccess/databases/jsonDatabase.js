@@ -1,7 +1,6 @@
 const STORAGE_KEY = "json_file_db";
 
 let store = load();
-let fileId = 1000;
 
 function load() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -16,8 +15,7 @@ function save() {
 
 export const jsonDatabase = {
   async getAll(collectionName) {
-    const collection = store[collectionName] || {};
-    return Object.entries(collection).map(([id, data]) => ({ id, ...data }));
+    return store[collectionName] || {};
   },
 
   async getWhere(collectionName, field, value) {
@@ -28,8 +26,11 @@ export const jsonDatabase = {
   },
 
   async add(collectionName, data) {
-    const id = String(fileId++);
+    const id = crypto.randomUUID();
+    console.log(id, store);
+
     if (!store[collectionName]) store[collectionName] = {};
+
     store[collectionName][id] = data;
     save();
     return { id };
