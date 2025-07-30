@@ -39,6 +39,8 @@ export const jsonDatabase = {
     if (!store[collectionName]) store[collectionName] = {};
 
     store[collectionName][id] = data;
+    save();
+
     return { id };
   },
 

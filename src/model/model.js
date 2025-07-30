@@ -13,9 +13,9 @@ export const COLLECTIONS = {
 
 export const Model = {
   state: {
-    groups: {},
+    groups: {}, // TODO: Consider making this an array??
     selectedGroups: [],
-    selectedTimestamps: {}, //TODO: this is a dumb thing
+    selectedTimestamps: [],
   },
 
   async init() {
@@ -43,17 +43,19 @@ export const Model = {
       await DB.deleteById(COLLECTIONS.GROUPS, id);
       delete this.state.groups[id];
     });
-    this.state.selectedGroups = []; // TODO: evaluate nme
+    this.state.selectedGroups = [];
     return await this.getState();
   },
 
   async addTimestampToGroup() {
     const timestamp = new Date().toISOString();
-    const updatedGroups = [];
+    let updatedGroups = [];
 
     for (const id of this.state.selectedGroups) {
       let doc = await DB.getById(COLLECTIONS.GROUPS, id);
       doc.timestamps.push(timestamp);
+
+      // TODO: uberlegen ob ein update and return funktion wurde wiederverwendbarkeit erhoehern
       await DB.update(COLLECTIONS.GROUPS, id, doc);
       updatedGroups.push({ id, timestamps: [...doc.timestamps] });
     }
@@ -62,58 +64,53 @@ export const Model = {
   },
 
   async deleteSelectedTimestamps() {
+    console.log(this.state.selectedTimestamps);
     const selected = this.state.selectedTimestamps;
-    const updatedGroups = [];
 
     for (const groupId in selected) {
+      // Sanity check: skip if groupId does not exist in current groups
+      if (!this.state.groups[groupId]) continue;
+
+      // Check that there are timestamps selected for the currently iterated group
       if (!selected[groupId] || !selected[groupId].length) continue;
       let doc = await DB.getById(COLLECTIONS.GROUPS, groupId);
+
+      console.log("deleteSelectedTimestamps: before", doc);
       doc.timestamps = doc.timestamps.filter(
         (ts) => !selected[groupId].includes(ts)
       );
+
       await DB.update(COLLECTIONS.GROUPS, groupId, doc);
-      updatedGroups.push({ id: groupId, timestamps: [...doc.timestamps] });
+
+      console.log("deleteSelectedTimestamps: after", doc);
     }
 
-    this.state.selectedTimestamps = {};
-    return updatedGroups;
+    this.state.selectedTimestamps = {}; // Reset to empty object
+    return await this.getState();
   },
 
-  toggleGroupSelection(id) {
-    console.log("toggleGroupSelection: SelectedIdd: ", id);
-    const idx = this.state.selectedGroups.indexOf(id);
+  toggleGroupSelection(groupId) {
+    console.log("toggleGroupSelection: SelectedIdd: ", groupId);
+    const idx = this.state.selectedGroups.indexOf(groupId);
     if (idx === -1) {
-      this.state.selectedGroups.push(id);
+      this.state.selectedGroups.push(groupId);
     } else {
       this.state.selectedGroups.splice(idx, 1);
     }
 
     console.log("toggleGroupSelection: selected: ", this.state.selectedGroups);
   },
-
   toggleTimestampSelection(groupId, timestamp) {
-    console.log("toggleTimestampSelection: ", groupId, timestamp);
-
-    // Ensure selectedTimestamps is an object
-    if (
-      typeof this.state.selectedTimestamps !== "object" ||
-      Array.isArray(this.state.selectedTimestamps)
-    ) {
-      this.state.selectedTimestamps = {};
-    }
-
     if (!this.state.selectedTimestamps[groupId]) {
       this.state.selectedTimestamps[groupId] = [];
     }
 
     const idx = this.state.selectedTimestamps[groupId].indexOf(timestamp);
+
     if (idx === -1) {
       this.state.selectedTimestamps[groupId].push(timestamp);
     } else {
       this.state.selectedTimestamps[groupId].splice(idx, 1);
-      if (this.state.selectedTimestamps[groupId].length === 0) {
-        delete this.state.selectedTimestamps[groupId];
-      }
     }
 
     console.log(
@@ -121,6 +118,4 @@ export const Model = {
       this.state.selectedTimestamps
     );
   },
-
-  // get rid of selected items from app
 };
