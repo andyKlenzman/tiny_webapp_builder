@@ -15,7 +15,7 @@ export const Model = {
   state: {
     groups: {},
     selectedGroups: [],
-    selectedTimestamps: [],
+    selectedTimestamps: {}, //TODO: this is a dumb thing
   },
 
   async init() {
@@ -49,19 +49,34 @@ export const Model = {
 
   async addTimestampToGroup() {
     const timestamp = new Date().toISOString();
+    const updatedGroups = [];
 
-    this.state.selectedGroups.forEach(async (id) => {
+    for (const id of this.state.selectedGroups) {
       let doc = await DB.getById(COLLECTIONS.GROUPS, id);
-      console.log("addTimestampToGroup: doc:", doc);
-
       doc.timestamps.push(timestamp);
-
-      console.log("addTimestampToGroup: doc:", doc);
-
       await DB.update(COLLECTIONS.GROUPS, id, doc);
-    });
+      updatedGroups.push({ id, timestamps: [...doc.timestamps] });
+    }
 
-    return timestamp;
+    return { timestamp, updatedGroups };
+  },
+
+  async deleteSelectedTimestamps() {
+    const selected = this.state.selectedTimestamps;
+    const updatedGroups = [];
+
+    for (const groupId in selected) {
+      if (!selected[groupId] || !selected[groupId].length) continue;
+      let doc = await DB.getById(COLLECTIONS.GROUPS, groupId);
+      doc.timestamps = doc.timestamps.filter(
+        (ts) => !selected[groupId].includes(ts)
+      );
+      await DB.update(COLLECTIONS.GROUPS, groupId, doc);
+      updatedGroups.push({ id: groupId, timestamps: [...doc.timestamps] });
+    }
+
+    this.state.selectedTimestamps = {};
+    return updatedGroups;
   },
 
   toggleGroupSelection(id) {
@@ -79,14 +94,26 @@ export const Model = {
   toggleTimestampSelection(groupId, timestamp) {
     console.log("toggleTimestampSelection: ", groupId, timestamp);
 
-    if (!this.state.selectedTimestamps[groupId])
+    // Ensure selectedTimestamps is an object
+    if (
+      typeof this.state.selectedTimestamps !== "object" ||
+      Array.isArray(this.state.selectedTimestamps)
+    ) {
+      this.state.selectedTimestamps = {};
+    }
+
+    if (!this.state.selectedTimestamps[groupId]) {
       this.state.selectedTimestamps[groupId] = [];
+    }
 
     const idx = this.state.selectedTimestamps[groupId].indexOf(timestamp);
     if (idx === -1) {
       this.state.selectedTimestamps[groupId].push(timestamp);
     } else {
       this.state.selectedTimestamps[groupId].splice(idx, 1);
+      if (this.state.selectedTimestamps[groupId].length === 0) {
+        delete this.state.selectedTimestamps[groupId];
+      }
     }
 
     console.log(

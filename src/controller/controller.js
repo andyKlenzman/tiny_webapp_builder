@@ -120,25 +120,26 @@ const renderApp = async () => {
   });
 
   addTimestampButton.addEventListener("click", async () => {
-    const timestamp = await Model.addTimestampToGroup();
-    const state = await Model.getState();
-    console.log("addTimestampButton: ", timestamp);
-
-    state.selectedGroups.forEach((groupId) => {
-      const groupComponent = list.querySelector(`[id="${groupId}"]`);
-
+    const { timestamp, updatedGroups } = await Model.addTimestampToGroup();
+    updatedGroups.forEach(({ id }) => {
+      const groupComponent = list.querySelector(`[id="${id}"]`);
       if (groupComponent) {
         const { entryWrapper } = createGroupEntry(timestamp, () => {
-          Model.toggleTimestampSelection(groupId, timestamp);
+          Model.toggleTimestampSelection(id, timestamp);
         });
 
-        groupComponent.appendChild(entryWrapper);
+        // Get the groupEntries sub-component from groupComponent
+        const groupEntries = groupComponent.querySelector("ul");
+        if (groupEntries) {
+          groupEntries.append(entryWrapper);
+        }
       }
     });
   });
   // Delete Handler
   deleteButton.addEventListener("click", async () => {
     const state = await Model.deleteSelectedGroups();
+    // await Model.deleteSelectedTimestamps();
     console.log(state);
     Array.from(list.children).forEach((child) => {
       if (!state.groups[child.id]) {
