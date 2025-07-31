@@ -7,15 +7,20 @@ export const COLLECTIONS = {
   GROUPS: "groups",
 };
 
+export const VIEW_MODES = {
+  STREAKS: "Streaks",
+  EDIT_TIMESTAMPS: "Edit Timestamps",
+};
 //////////////////////////////////////////////////////
 // Model
 //////////////////////////////////////////////////////
-
+// Koennte ich irgendwie die schichten hier trennn, also anwendeungen die aufm base ebende gebaut werden haben ihre eignenen schichte?
 export const Model = {
   state: {
     groups: {}, // TODO: Consider making this an array??
     selectedGroups: [],
     selectedTimestamps: [],
+    currentView: VIEW_MODES.STREAKS,
   },
 
   async init() {
@@ -25,6 +30,11 @@ export const Model = {
   async getState() {
     this.state.groups = await DB.getAll(COLLECTIONS.GROUPS);
     return JSON.parse(JSON.stringify(this.state));
+  },
+  // TODO: cache me in browser
+  changeCurrentView(newMode) {
+    Model.state.currentView = newMode;
+    return Model.state.currentView;
   },
 
   async addGroup(groupName) {
@@ -47,10 +57,10 @@ export const Model = {
     return await this.getState();
   },
 
-  async addTimestampToGroup() {
-    const timestamp = new Date().toISOString();
+  // optional parameter that is deafult to nuill and checks and sets to default tim ei if nullor param is in functiona itself
+  async addTimestampToSelectedGroups(timestamp = new Date().toISOString()) {
     let updatedGroups = [];
-
+    // TODO: Is this magic scope refactor worthy
     for (const id of this.state.selectedGroups) {
       let doc = await DB.getById(COLLECTIONS.GROUPS, id);
       doc.timestamps.push(timestamp);

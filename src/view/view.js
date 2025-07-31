@@ -18,6 +18,25 @@ export const createGroupList = () => {
   return groupList;
 };
 
+//////////////////////////////////////////////////////
+// Compounds
+//////////////////////////////////////////////////////
+export const createDropdown = (options, onChange) => {
+  const dropdown = document.createElement("select");
+
+  Object.values(options).forEach((value) => {
+    console.log(value); // "Streaks", "Edit Timestamps"
+    const option = document.createElement("option");
+    option.textContent = value;
+    option.value = value;
+    dropdown.append(option);
+  });
+
+  dropdown.addEventListener("change", (e) => onChange(e.target.value));
+
+  return dropdown;
+};
+
 export const createGroupEntry = (timestamp, onCheckboxToggle) => {
   let entryWrapper = document.createElement("li");
   entryWrapper.className = "flex-row";
@@ -28,15 +47,12 @@ export const createGroupEntry = (timestamp, onCheckboxToggle) => {
 
   let entryCheckbox = document.createElement("input");
   entryCheckbox.type = "checkbox";
-  entryCheckbox.addEventListener("change", () => onCheckboxToggle());
+  entryCheckbox.addEventListener("change", () => onCheckboxToggle()); // TODO: align with implementation of other checkbox and use that to define boundaries
 
   entryWrapper.append(entryCheckbox, entryText);
 
   return { entryWrapper, entryText, entryCheckbox };
 };
-//////////////////////////////////////////////////////
-// Compounds
-//////////////////////////////////////////////////////
 
 export const createInputElements = () => {
   let inputWrapper = document.createElement("div");
@@ -73,12 +89,23 @@ export const createGroupElements = (id, name, onCheckboxToggle) => {
 
   groupWrapper.append(groupHeaderWrapper, groupEntries);
 
-  // TODO: delete or refactor
-  // const addEntry = () => {
-  //   let groupEntry = document.createElement("li");
-  //   groupEntry.textContent = "test";
-  //   groupEntries.append(groupEntry);
-  // };
-
   return { groupWrapper, groupName, groupCheckbox, groupEntries };
+};
+
+export const createManualTimestampInput = () => {
+  const manualTimestampWrapper = document.createElement("div");
+  manualTimestampWrapper.classList.add("flex-row");
+
+  const manualTimestampButton = createButtonElement("enter");
+
+  const manualTimestampInput = document.createElement("input");
+  manualTimestampInput.type = "datetime-local";
+
+  manualTimestampWrapper.append(manualTimestampInput, manualTimestampButton);
+
+  return {
+    manualTimestampWrapper,
+    manualTimestampButton,
+    manualTimestampInput,
+  };
 };
