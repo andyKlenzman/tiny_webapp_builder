@@ -3,6 +3,7 @@ import { DB } from "./dataAccess/dataAccessInterface";
 //////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////
+// TODO: Verorten mich woanders!! 
 export const COLLECTIONS = {
   GROUPS: "groups",
 };
@@ -15,7 +16,12 @@ export const VIEW_MODES = {
 // Model
 //////////////////////////////////////////////////////
 // Koennte ich irgendwie die schichten hier trennn, also anwendeungen die aufm base ebende gebaut werden haben ihre eignenen schichte?
+
+// could have controller as the entry point and expose places in DOM where other things could interate. ENtkoppeln streaks completely from tracking, in the sense that streaks would be only a number that takes in time.
+
+// I could structure this as models inside of models
 export const Model = {
+  // TODO: entweder von API ausschliesen oder get state loeschen
   state: {
     groups: {}, // TODO: Consider making this an array??
     selectedGroups: [],

@@ -1,3 +1,5 @@
+import { VIEW_MODES } from "../model/model";
+
 //////////////////////////////////////////////////////
 // View
 //////////////////////////////////////////////////////
@@ -106,6 +108,50 @@ export const createManualTimestampInput = () => {
   return {
     manualTimestampWrapper,
     manualTimestampButton,
+    manualTimestampInput,
+  };
+};
+
+export const createAppView = (
+  onViewModeChange,
+  onAddGroup,
+  onAddTimestamp,
+  onDelete,
+  onManualTimestamp
+) => {
+  const root = document.createElement("div");
+
+  const dropdown = createDropdown(VIEW_MODES, onViewModeChange);
+  const { inputWrapper, inputField, inputButton } = createInputElements();
+  const list = document.createElement("div");
+  const addTimestampButton = createButtonElement("addTimestamp");
+  const deleteButton = createButtonElement("delete");
+  const {
+    manualTimestampWrapper,
+    manualTimestampButton,
+    manualTimestampInput,
+  } = createManualTimestampInput();
+
+  inputButton.addEventListener("click", () => onAddGroup(inputField, list));
+  addTimestampButton.addEventListener("click", () => onAddTimestamp(list));
+  deleteButton.addEventListener("click", () => onDelete(list));
+  manualTimestampButton.addEventListener("click", () =>
+    onManualTimestamp(manualTimestampInput, list)
+  );
+
+  root.append(
+    dropdown,
+    inputWrapper,
+    list,
+    deleteButton,
+    addTimestampButton,
+    manualTimestampWrapper
+  );
+
+  return {
+    root,
+    list,
+    inputField,
     manualTimestampInput,
   };
 };
