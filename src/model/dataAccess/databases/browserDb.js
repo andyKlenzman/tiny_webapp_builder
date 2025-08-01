@@ -13,7 +13,7 @@ function save() {
   }
 }
 
-export const jsonDatabase = {
+export const browserDb = {
   async getAll(collectionName) {
     return store[collectionName] || {};
   },

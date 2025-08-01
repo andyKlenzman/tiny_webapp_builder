@@ -1,5 +1,5 @@
 firebase-config.js
 .env
 /node_modules
-notes.txt
+_notes/*
 .DS_Store

@@ -9,6 +9,14 @@ export const VIEW_MODES = {
   EDIT_TIMESTAMPS: "Edit Timestamps",
 };
 
+export const STATUS = {
+  IDLE: "Idle",
+  LOADING: "Loading",
+  ERROR: "Error",
+  CONNECTED: "Connected",
+  DISCONNECTED: "Disconnected",
+};
+
 //////////////////////////////////////////////////////
 // State & View State
 //////////////////////////////////////////////////////
@@ -23,11 +31,26 @@ let currentView = VIEW_MODES.STREAKS;
 //////////////////////////////////////////////////////
 // Helpers
 //////////////////////////////////////////////////////
-
+// TODO: Do I need this?? Prob wheen firebase gets involeved
 const syncGroups = async () => {
   state.groups = await DB.getAll(COLLECTIONS.GROUPS);
   return JSON.parse(JSON.stringify({ ...state, currentView }));
 };
+
+//////////////////////////////////////////////////////
+// App Status
+//////////////////////////////////////////////////////
+
+let appStatus = "Idle"; // Oder "Connected", "Loading", "Error"
+
+const statusState = {
+  setStatus: (status) => {
+    appStatus = status;
+    console.log("Status updated:", appStatus);
+  },
+  getStatus: () => appStatus,
+};
+
 
 //////////////////////////////////////////////////////
 // ViewState
@@ -140,5 +163,7 @@ export const Model = {
   deleteSelectedTimestamps: timestampStore.deleteSelectedTimestamps,
   toggleTimestampSelection: timestampStore.toggleTimestampSelection,
 
+  getAppStatus: statusState.getStatus,
+  setAppStatus: statusState.setStatus,
   state,
 };

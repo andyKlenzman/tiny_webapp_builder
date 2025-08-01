@@ -8,6 +8,12 @@ import {
 //////////////////////////////////////////////////////
 // Utilities
 //////////////////////////////////////////////////////
+// TODO: A little overkill , na??
+const updateStatusBar = (statusBarElement, statusText) => {
+  if (statusBarElement) {
+    statusBarElement.textContent = `Status: ${statusText}`;
+  }
+};
 
 const applyViewMode = (el, allowedViewModes) => {
   el.dataset.viewMode = allowedViewModes.join(",");

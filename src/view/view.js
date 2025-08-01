@@ -23,6 +23,30 @@ export const createGroupList = () => {
 //////////////////////////////////////////////////////
 // Compounds
 //////////////////////////////////////////////////////
+export const createStatusBar = () => {
+  const bar = document.createElement("div");
+  bar.id = "status-bar";
+  bar.style.position = "fixed";
+  bar.style.bottom = "0";
+  bar.style.left = "0";
+  bar.style.right = "0";
+  bar.style.padding = "0.5rem";
+  bar.style.background = "#f2f2f2";
+  bar.style.fontSize = "0.9rem";
+  bar.style.textAlign = "center";
+  bar.textContent = "Status: Idle";
+
+  return bar;
+};
+
+export const updateStatusBar = (statusText) => {
+  const bar = document.getElementById("status-bar");
+  if (bar) {
+    bar.textContent = `Status: ${statusText}`;
+  }
+};
+
+
 export const createDropdown = (options, onChange) => {
   const dropdown = document.createElement("select");
 
@@ -126,26 +150,37 @@ export const createAppView = (
   const list = document.createElement("div");
   const addTimestampButton = createButtonElement("addTimestamp");
   const deleteButton = createButtonElement("delete");
+
   const {
     manualTimestampWrapper,
     manualTimestampButton,
     manualTimestampInput,
   } = createManualTimestampInput();
 
-  inputButton.addEventListener("click", () => onAddGroup(inputField, list));
-  addTimestampButton.addEventListener("click", () => onAddTimestamp(list));
-  deleteButton.addEventListener("click", () => onDelete(list));
+  // 👉 Neue Statusbar
+  const statusBar = createStatusBar();
+
+  // Event handlers binden
+  inputButton.addEventListener("click", () =>
+    onAddGroup(inputField, list, statusBar)
+  );
+  addTimestampButton.addEventListener("click", () =>
+    onAddTimestamp(list, statusBar)
+  );
+  deleteButton.addEventListener("click", () => onDelete(list, statusBar));
   manualTimestampButton.addEventListener("click", () =>
-    onManualTimestamp(manualTimestampInput, list)
+    onManualTimestamp(manualTimestampInput, list, statusBar)
   );
 
+  // Alles einbauen
   root.append(
     dropdown,
     inputWrapper,
     list,
     deleteButton,
     addTimestampButton,
-    manualTimestampWrapper
+    manualTimestampWrapper,
+    statusBar // ← ganz unten anzeigen
   );
 
   return {
@@ -153,5 +188,6 @@ export const createAppView = (
     list,
     inputField,
     manualTimestampInput,
+    statusBar,
   };
 };
