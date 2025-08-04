@@ -15,7 +15,8 @@ function save() {
 
 export const browserDb = {
   async getAll(collectionName) {
-    return store[collectionName] || {};
+    const collection = store[collectionName] || {};
+    return collection;
   },
 
   async getById(collectionName, id) {

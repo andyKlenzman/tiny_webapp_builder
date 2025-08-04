@@ -129,6 +129,8 @@ const handleManualTimestamp = async (input, list) => {
 //////////////////////////////////////////////////////
 
 const renderApp = async () => {
+  testTimeAnalyzers();
+
   const state = await Model.init();
   console.log("renderApp: initialState:", state.groups);
 
@@ -149,3 +151,85 @@ const renderApp = async () => {
 };
 
 export default renderApp;
+
+//////////////////////////////////////////////////////
+// Timerstamp Ana;zer
+//////////////////////////////////////////////////////
+
+// TODO: herausfinden auf wlechem schichte dies Ding leben sollte
+
+const ANALYZE_MODES = {
+  STREAKS: "streaks",
+};
+
+// returns a lowest to highest list of locations of the time interval inside of two time values the number and time interval locations of
+const getIntervalMap = (valueA, valueB, interval) => {
+  let currentInterval;
+  let endTime;
+
+  if (valueA < valueB) {
+    currentInterval = valueA;
+    endTime = valueB;
+  } else {
+    currentInterval = valueB;
+    endTime = valueA;
+  }
+
+  let timeMap = [];
+
+  while (endTime >= currentInterval) {
+    timeMap.push(currentInterval);
+    currentInterval = currentInterval + interval;
+  }
+
+  return timeMap;
+};
+
+// returns a list of ms values based on ISO data
+const getMillisecondFromISO = (ISOs) => {
+  return ISOs.map((iso) => Date.parse(iso));
+};
+
+const getTestData = () => {
+  let testISO = [];
+  // Generate 10 random ISO timestamps within the last 10 days
+  const now = Date.now();
+  const tenDaysAgo = now - 10 * 24 * 60 * 60 * 1000;
+  for (let i = 0; i < 10; i++) {
+    const randomTime = tenDaysAgo + Math.random() * (now - tenDaysAgo);
+    testISO.push(new Date(randomTime).toISOString());
+  }
+
+  return testISO;
+};
+
+const existsBetween = (values, a, b) => {
+  const lower = Math.min(a, b);
+  const upper = Math.max(a, b);
+  return values.some((v) => v > lower && v < upper);
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const testTimeAnalyzers = () => {
+  const testISO = getTestData();
+  console.log("testTime: ", testISO, testISO.length);
+
+  const testMs = getMillisecondFromISO(testISO);
+  console.log("testTime: ", testMs, testMs.length);
+
+  const minValue = Math.min(...testMs);
+  const maxValue = Math.max(...testMs);
+
+  console.log("Min:", minValue, "Max:", maxValue);
+
+  const intervalMap = getIntervalMap(maxValue, minValue, DAY_MS);
+
+  for (let i = 0; i < testMs.length - 1; i++) {
+    let result = existsBetween(testMs, intervalMap[i], intervalMap[i + 1]);
+    console.log("testTime: ", result);
+  }
+
+  let timeA_ms = new Date().getTime();
+  let timeB_ms = new Date().setHours(24, 0, 0, 0);
+  timeB_ms = new Date(timeB_ms).getTime();
+};

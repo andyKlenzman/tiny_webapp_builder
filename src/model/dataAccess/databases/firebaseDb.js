@@ -15,9 +15,9 @@ import {
 export const firebaseDB = {
   async getAll(collectionName) {
     const q = query(collection(db, collectionName));
-
     const snap = await getDocs(q);
     const docs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
     return docs;
   },
 

@@ -41,7 +41,7 @@ const syncGroups = async () => {
 // App Status
 //////////////////////////////////////////////////////
 
-let appStatus = "Idle"; // Oder "Connected", "Loading", "Error"
+let appStatus = STATUS.IDLE; 
 
 const statusState = {
   setStatus: (status) => {
@@ -165,5 +165,7 @@ export const Model = {
 
   getAppStatus: statusState.getStatus,
   setAppStatus: statusState.setStatus,
+
+  
   state,
 };
