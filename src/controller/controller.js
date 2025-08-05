@@ -216,18 +216,9 @@ const getTestData = () => {
   return testISO;
 };
 
-// input millisecond date value
-// output - current streak, total completions in time interval, and number of intervals
-// TODO: sollte ich es mehr entkoellt machen?
-const runIntervalMapAnalysis = (msDateArray) => {
-  const lower = Math.min(...msDateArray);
-  const upper = Math.max(...msDateArray);
-
-  console.log("lower:", lower, "upper:", upper);
-
-  const intervalMap = getIntervalMap(lower, upper, DAY_MS);
-  console.log("intervalMap :", intervalMap);
-
+// TODO: versetzt wirklich hier implementieren
+// this is way too complicated
+const runIntervalMapAnalysis = (msDateArray, intervalMap, margin = 0) => {
   let currentStreak = 0;
   let largestStreak = 0;
   let totalCompletions = 0;
@@ -252,12 +243,51 @@ const runIntervalMapAnalysis = (msDateArray) => {
   return { currentStreak, largestStreak, totalCompletions, totalIntervals };
 };
 
-const testTimeAnalyzers = () => {
-  const testISO = getTestData();
-  console.log("testTime: ", testISO, testISO.length);
+const getStartOfDayLocal = (timestamp) => {
+  const date = new Date(timestamp);
 
+  const startOfDayLocal = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  return startOfDayLocal;
+};
+
+const getEndOfDayLocal = (timestamp) => {
+  const date = new Date(timestamp);
+
+  const endOfDayLocal = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+
+  return endOfDayLocal;
+};
+
+const testTimeAnalyzers = () => {
+  // generate random test data
+  const testISO = getTestData();
+
+  // convert to increment time
   const testMs = testISO.map((iso) => Date.parse(iso));
-  console.log("testTime: ", testMs, testMs.length);
+
+  // get lower and max limit (start of first day end of current day)
+  const lower = Math.min(...msDateArray);
+  const upper = Math.max(...msDateArray);
+
+  const start = getStartOfDayLocal(lower);
+  const end = getEndOfDayLocal();
+
+  // 
+  const intervalMap = getIntervalMap(start, end, DAY_MS);
+  console.log("intervalMap :", intervalMap);
 
   const { currentStreak, totalCompletions, totalIntervals } =
     runIntervalMapAnalysis(testMs);
