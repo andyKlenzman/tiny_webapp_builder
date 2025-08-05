@@ -46,12 +46,14 @@ const buildGroupElement = (id, group) => {
 
   applyViewMode(groupEntries, [VIEW_MODES.EDIT_TIMESTAMPS]);
 
-  group.timestamps.forEach((timestamp) => {
-    const { entryWrapper } = createGroupEntry(timestamp, () => {
-      Model.toggleTimestampSelection(id, timestamp);
+  if (group.timestamps) {
+    group.timestamps.forEach((timestamp) => {
+      const { entryWrapper } = createGroupEntry(timestamp, () => {
+        Model.toggleTimestampSelection(id, timestamp);
+      });
+      groupEntries.append(entryWrapper);
     });
-    groupEntries.append(entryWrapper);
-  });
+  }
 
   return groupWrapper;
 };
@@ -155,13 +157,10 @@ export default renderApp;
 //////////////////////////////////////////////////////
 // Timerstamp Ana;zer
 //////////////////////////////////////////////////////
-
-// TODO: herausfinden auf wlechem schichte dies Ding leben sollte
-
-const ANALYZE_MODES = {
-  STREAKS: "streaks",
-};
-
+const DAY_MS = 24 * 60 * 60 * 1000;
+/**
+ *
+ */
 // returns a lowest to highest list of locations of the time interval inside of two time values the number and time interval locations of
 const getIntervalMap = (valueA, valueB, interval) => {
   let currentInterval;
@@ -185,9 +184,23 @@ const getIntervalMap = (valueA, valueB, interval) => {
   return timeMap;
 };
 
-// returns a list of ms values based on ISO data
-const getMillisecondFromISO = (ISOs) => {
-  return ISOs.map((iso) => Date.parse(iso));
+function getStartOfDayMsForTimestamp(isoString) {
+  // Timestamp in Date-Objekt umwandeln
+  const date = new Date(isoString);
+
+  const startOfDayLocal = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  return startOfDayLocal.getTime();
+}
+
+const existsBetween = (values, a, b) => {
+  const lower = Math.min(a, b);
+  const upper = Math.max(a, b);
+  return values.some((v) => v > lower && v < upper);
 };
 
 const getTestData = () => {
@@ -203,33 +216,50 @@ const getTestData = () => {
   return testISO;
 };
 
-const existsBetween = (values, a, b) => {
-  const lower = Math.min(a, b);
-  const upper = Math.max(a, b);
-  return values.some((v) => v > lower && v < upper);
+// input millisecond date value
+// output - current streak, total completions in time interval, and number of intervals
+// TODO: sollte ich es mehr entkoellt machen?
+const runIntervalMapAnalysis = (msDateArray) => {
+  const lower = Math.min(...msDateArray);
+  const upper = Math.max(...msDateArray);
+
+  console.log("lower:", lower, "upper:", upper);
+
+  const intervalMap = getIntervalMap(lower, upper, DAY_MS);
+  console.log("intervalMap :", intervalMap);
+
+  let currentStreak = 0;
+  let largestStreak = 0;
+  let totalCompletions = 0;
+  let totalIntervals = intervalMap.length; // TODO: check me
+
+  for (let i = 0; i < msDateArray.length - 1; i++) {
+    let result = existsBetween(msDateArray, intervalMap[i], intervalMap[i + 1]);
+    console.log("testTime: ", result);
+    if (result) {
+      currentStreak++;
+      totalCompletions++;
+    } else {
+      largestStreak = currentStreak;
+      currentStreak = 0;
+    }
+  }
+
+  if (largestStreak === 0) {
+    largestStreak = currentStreak;
+  }
+
+  return { currentStreak, largestStreak, totalCompletions, totalIntervals };
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const testTimeAnalyzers = () => {
   const testISO = getTestData();
   console.log("testTime: ", testISO, testISO.length);
 
-  const testMs = getMillisecondFromISO(testISO);
+  const testMs = testISO.map((iso) => Date.parse(iso));
   console.log("testTime: ", testMs, testMs.length);
 
-  const minValue = Math.min(...testMs);
-  const maxValue = Math.max(...testMs);
-
-  console.log("Min:", minValue, "Max:", maxValue);
-
-  const intervalMap = getIntervalMap(maxValue, minValue, DAY_MS);
-
-  for (let i = 0; i < testMs.length - 1; i++) {
-    let result = existsBetween(testMs, intervalMap[i], intervalMap[i + 1]);
-    console.log("testTime: ", result);
-  }
-
-  let timeA_ms = new Date().getTime();
-  let timeB_ms = new Date().setHours(24, 0, 0, 0);
-  timeB_ms = new Date(timeB_ms).getTime();
+  const { currentStreak, totalCompletions, totalIntervals } =
+    runIntervalMapAnalysis(testMs);
+  console.log("results:", { currentStreak, totalCompletions, totalIntervals });
 };
