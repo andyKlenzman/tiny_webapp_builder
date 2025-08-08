@@ -19,7 +19,11 @@ export const firebaseDB = {
     try {
       const q = query(collection(db, collectionName));
       const snap = await getDocs(q);
-      const docs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      let docs = {};
+
+      for (const doc of snap.docs) {
+        docs[doc.id] = {...doc.data()}
+      }
       return docs;
     } catch (error) {
       console.error("firebaseDB: getAll:", error);

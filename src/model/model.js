@@ -1,4 +1,6 @@
-import { DB } from "./dataAccess/dataAccessInterface";
+import { createDB , DB_SOURCES} from "./dataAccess/dataAccessInterface";
+const DB = createDB(DB_SOURCES.firebase)
+
 
 export const COLLECTIONS = {
   GROUPS: "groups",
