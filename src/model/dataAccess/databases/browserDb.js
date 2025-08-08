@@ -4,7 +4,7 @@ let store = load();
 
 function load() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : {}; // kein { groups: {}, posts: {} }
+  return raw ? JSON.parse(raw) : [];
 }
 
 function save() {
@@ -20,7 +20,7 @@ export const browserDb = {
   },
 
   async getById(collectionName, id) {
-    if (store[collectionName] && store[collectionName][id]) {
+    if (store[collectionName] && id in store[collectionName]) {
       return store[collectionName][id];
     }
     return null;
@@ -35,14 +35,12 @@ export const browserDb = {
 
   async add(collectionName, data) {
     const id = crypto.randomUUID();
-    console.log(id, store);
-
     if (!store[collectionName]) store[collectionName] = {};
 
     store[collectionName][id] = data;
     save();
 
-    return { id };
+    return id;
   },
 
   async update(collectionName, id, data) {
@@ -52,9 +50,17 @@ export const browserDb = {
         ...data,
       };
       save();
-      return { id, ...store[collectionName][id] };
+      return store[collectionName][id];
     }
     return null;
+  },
+
+  async deleteAll(collectionName) {
+    if (store[collectionName]) {
+      delete store[collectionName];
+      save();
+    }
+    return;
   },
 
   async deleteById(collectionName, id) {
@@ -62,6 +68,6 @@ export const browserDb = {
       delete store[collectionName][id];
       save();
     }
-    return { id };
+    return id;
   },
 };

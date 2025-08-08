@@ -50,7 +50,6 @@ export const createDropdown = (options, onChange) => {
   const dropdown = document.createElement("select");
 
   Object.values(options).forEach((value) => {
-    console.log(value); // "Streaks", "Edit Timestamps"
     const option = document.createElement("option");
     option.textContent = value;
     option.value = value;

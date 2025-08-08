@@ -4,6 +4,7 @@ import {
   createGroupEntry,
   createAppView,
 } from "../view/view";
+import testDataAccessInterface from "../model/dataAccess/dataTesting";
 
 //////////////////////////////////////////////////////
 // Utilities
@@ -131,10 +132,10 @@ const handleManualTimestamp = async (input, list) => {
 //////////////////////////////////////////////////////
 
 const renderApp = async () => {
-  testTimeAnalyzers();
+  // testTimeAnalyzers();
+  testDataAccessInterface();
 
   const state = await Model.init();
-  console.log("renderApp: initialState:", state.groups);
 
   const { root, list, inputField, manualTimestampInput } = createAppView(
     handleViewModeChange,

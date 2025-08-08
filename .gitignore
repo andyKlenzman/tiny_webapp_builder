@@ -4,5 +4,5 @@ firebase-config.js
 _notes/*
 .DS_Store
 
-firestore-debug.log
-ui-debug.log
+
+**.log

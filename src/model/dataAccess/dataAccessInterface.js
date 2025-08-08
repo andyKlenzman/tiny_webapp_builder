@@ -1,16 +1,25 @@
 import { firebaseDB } from "./databases/firebaseDb.js";
 import { browserDb } from "./databases/browserDb.js";
 
-// Alle verfügbaren Datenbanken in einer Map
-const DB_SOURCES = {
-  firebase: firebaseDB,
-  browser: browserDb,
+export const DB_SOURCES = {
+  firebase: "firebase",
+  browser: "browser",
 };
 
 // Factory-Funktion für das DB-Interface
 export function createDB(source) {
-  const db = DB_SOURCES[source];
-  if (!db) throw new Error(`Unknown DB source: ${source}`);
+  let db;
+  switch (source) {
+    case DB_SOURCES.browser:
+      db = browserDb;
+      break;
+    case DB_SOURCES.firebase:
+      db = firebaseDB;
+      break;
+    default:
+      console.error(`createDB: Unknown DB source`);
+      return;
+  }
 
   return {
     getAll: db.getAll,
@@ -18,9 +27,10 @@ export function createDB(source) {
     getWhere: db.getWhere,
     add: db.add,
     update: db.update,
+    deleteAll: db.deleteAll,
     deleteById: db.deleteById,
   };
 }
 
 // Standard-Export für die Default-Datenbank
-export const DB = createDB("browser"); // TODO: Gibt man ein spezieller Name
+export const DB = createDB(DB_SOURCES.browser); // TODO: Gibt man ein spezieller Name
