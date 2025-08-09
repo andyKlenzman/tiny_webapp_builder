@@ -6,7 +6,6 @@ export const DAY_MS = 24 * 60 * 60 * 1000;
 //////////////////////////////////////////////////////
 // Internal Functions
 //////////////////////////////////////////////////////
-
 export const getIntervalMap = (valueA, valueB, interval) => {
   let currentInterval;
   let endValue;
@@ -38,39 +37,34 @@ const existsBetween = (values, a, b) => {
   return values.some((v) => v > lower && v < upper);
 };
 
-// Utility: Returns start and end of local day for a given timestamp
-export const getDayBoundsLocal = (timestamp) => {
+export const getTimeProperties = (timestamp) => {
   const date = new Date(timestamp);
 
-  const startOfDayLocal = new Date(
+  let startOfDayLocal = new Date(
     date.getFullYear(),
     date.getMonth(),
     date.getDate()
   );
 
-  const endOfDayLocal = new Date(
+  let startOfTomorrowLocal = new Date(
     date.getFullYear(),
     date.getMonth(),
-    date.getDate(),
-    23,
-    59,
-    59,
-    999
+    date.getDate() + 1
   );
 
-  return { startOfDayLocal, endOfDayLocal };
+  startOfDayLocal = startOfDayLocal.getTime();
+  startOfTomorrowLocal = startOfTomorrowLocal.getTime();
+
+  return { startOfDayLocal, startOfTomorrowLocal };
 };
 
-//////////////////////////////////////////////////////
-// Public API
-//////////////////////////////////////////////////////
-export const runStreaks = (msDateArray, intervalMap) => {
+const getStreaks = (msDateArray, intervalMap) => {
   let currentStreak = 0;
   let largestStreak = 0;
   let totalCompletions = 0;
   let totalIntervals = intervalMap.length;
 
-  for (let i = 0; i < msDateArray.length - 1; i++) {
+  for (let i = 0; i < intervalMap.length - 1; i++) {
     let result = existsBetween(msDateArray, intervalMap[i], intervalMap[i + 1]);
     console.log("testTime: ", result);
     if (result) {
@@ -90,44 +84,25 @@ export const runStreaks = (msDateArray, intervalMap) => {
 };
 
 //////////////////////////////////////////////////////
-// Testing Utilities
+// Public API
 //////////////////////////////////////////////////////
-const getRandomDateIso = (amount = 10) => {
-  let testISO = [];
-  // Generate 10 random ISO timestamps within the last 10 days
-  const now = Date.now();
-  const tenDaysAgo = now - 10 * 24 * 60 * 60 * 1000;
-  for (let i = 0; i < amount; i++) {
-    const randomTime = tenDaysAgo + Math.random() * (now - tenDaysAgo);
-    testISO.push(new Date(randomTime).toISOString());
-  }
+export const runStreaks = (timestamps) => {
+  const incrementTime = timestamps.map((iso) => Date.parse(iso));
 
-  return testISO;
-};
+  const newestEntry = Math.min(...incrementTime);
+  const today = new Date();
 
-const testTimeAnalyzers = () => {
-  // generate random test data
-  const testISO = getRandomDateIso();
+  const { startOfDayLocal } = getTimeProperties(newestEntry);
+  const { startOfTomorrowLocal } = getTimeProperties(today);
 
-  // convert to increment time
-  const testMs = testISO.map((iso) => Date.parse(iso));
-
-  // get lower and max limit (start of first day end of current day)
-  const firstEntry = Math.min(...testMs);
-  const lastEntry = Math.max(...testMs);
-
-  const { startOfDayLocal } = getDayBoundsLocal(firstEntry);
   const intervalMap = getIntervalMap(
-    new Date(startOfDayLocal).getTime(),
-    lastEntry,
+    startOfDayLocal,
+    startOfTomorrowLocal,
     DAY_MS
   );
-  console.log("intervalMap :", intervalMap);
 
-  const { currentStreak, totalCompletions, totalIntervals } = runStreaks(
-    testMs,
-    intervalMap
-  );
+  const { currentStreak, totalCompletions, totalIntervals, largestStreak } =
+    getStreaks(incrementTime, intervalMap);
 
-  console.log("results:", { currentStreak, totalCompletions, totalIntervals });
+  return { currentStreak, largestStreak, totalCompletions, totalIntervals };
 };

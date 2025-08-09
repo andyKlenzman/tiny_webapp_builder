@@ -5,7 +5,7 @@ import {
   createAppView,
 } from "../view/view";
 import testDataAccessInterface from "../model/dataAccess/dataTesting";
-import { runStreaks, getIntervalMap, DAY_MS, getDayBoundsLocal } from "./streaks";
+import { runStreaks } from "./streaks";
 
 //////////////////////////////////////////////////////
 // Utilities
@@ -46,7 +46,7 @@ const buildGroupElement = (id, group) => {
     () => Model.toggleGroupSelection(id)
   );
 
-  applyViewMode(groupEntries, [VIEW_MODES.EDIT_TIMESTAMPS]);
+  applyViewMode(groupEntries, [VIEW_MODES.EDIT]);
 
   if (group.timestamps) {
     group.timestamps.forEach((timestamp) => {
@@ -151,26 +151,20 @@ const renderApp = async () => {
   for (const [id, group] of Object.entries(state.groups)) {
     const groupWrapper = buildGroupElement(id, group);
 
-    const intervalTimestamps = group.timestamps.map((iso) => Date.parse(iso)); // TODO: move to model and encapsulate in a middleware fuimnctinoln
-
-    const firstEntry = Math.min(...intervalTimestamps);
-    const lastEntry = Math.max(...intervalTimestamps);
-
-    const { startOfDayLocal } = getDayBoundsLocal(firstEntry);
-    const intervalMap = getIntervalMap(
-      new Date(startOfDayLocal).getTime(),
-      lastEntry,
-      DAY_MS
-    );
     const { currentStreak, totalCompletions, totalIntervals, largestStreak } =
-      runStreaks(intervalTimestamps, intervalMap);
-          console.log(currentStreak, totalCompletions, totalIntervals, largestStreak)
+      runStreaks(group.timestamps);
 
-
-
-
-
-
+    console.log(
+      group.groupName,
+      "currentStreak",
+      currentStreak,
+      "totalCompletions",
+      totalCompletions,
+      "totalIntervals",
+      totalIntervals,
+      "largestStreak",
+      largestStreak
+    );
 
     list.append(groupWrapper);
   }

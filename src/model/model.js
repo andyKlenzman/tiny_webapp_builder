@@ -1,14 +1,13 @@
-import { createDB , DB_SOURCES} from "./dataAccess/dataAccessInterface";
-const DB = createDB(DB_SOURCES.firebase)
-
+import { createDB, DB_SOURCES } from "./dataAccess/dataAccessInterface";
+const DB = createDB(DB_SOURCES.firebase);
 
 export const COLLECTIONS = {
   GROUPS: "groups",
 };
 
 export const VIEW_MODES = {
-  STREAKS: "Streaks",
-  EDIT_TIMESTAMPS: "Edit Timestamps",
+  FOCUS: "Focus",
+  EDIT: "Edit",
 };
 
 export const STATUS = {
@@ -28,7 +27,7 @@ const state = {
   selectedTimestamps: {},
 };
 
-let currentView = VIEW_MODES.STREAKS;
+let currentView = VIEW_MODES.FOCUS;
 
 //////////////////////////////////////////////////////
 // Helpers
@@ -43,7 +42,7 @@ const syncGroups = async () => {
 // App Status
 //////////////////////////////////////////////////////
 
-let appStatus = STATUS.IDLE; 
+let appStatus = STATUS.IDLE;
 
 const statusState = {
   setStatus: (status) => {
@@ -52,7 +51,6 @@ const statusState = {
   },
   getStatus: () => appStatus,
 };
-
 
 //////////////////////////////////////////////////////
 // ViewState
@@ -168,6 +166,5 @@ export const Model = {
   getAppStatus: statusState.getStatus,
   setAppStatus: statusState.setStatus,
 
-  
   state,
 };
