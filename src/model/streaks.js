@@ -62,7 +62,11 @@ const getStreaks = (msDateArray, intervalMap) => {
   let currentStreak = 0;
   let largestStreak = 0;
   let totalCompletions = 0;
-  let totalIntervals = intervalMap.length;
+  let totalIntervals = 0; 
+  if(intervalMap.length > 1) {
+    totalIntervals = intervalMap.length -1
+  }
+
 
   for (let i = 0; i < intervalMap.length - 1; i++) {
     let result = existsBetween(msDateArray, intervalMap[i], intervalMap[i + 1]);

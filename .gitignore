@@ -1,8 +1,5 @@
-firebase-config.js
 .env
 /node_modules
 _notes/*
 .DS_Store
-
-
 **.log

@@ -5,10 +5,10 @@ import {
   createAppView,
 } from "../view/view";
 
-
 //////////////////////////////////////////////////////
 // Utilities
 //////////////////////////////////////////////////////
+
 const updateStatusBar = (statusBarElement, statusText) => {
   if (statusBarElement) {
     statusBarElement.textContent = `Status: ${statusText}`;
@@ -25,7 +25,6 @@ const applyViewMode = (el, allowedViewModes) => {
 };
 
 const changeViewMode = (baseElement, viewMode) => {
-  console.log("changeViewMode:", viewMode);
   const elements = baseElement.querySelectorAll("[data-view-mode]");
   elements.forEach((el) => {
     const modes = el.dataset.viewMode.split(",").map((m) => m.trim());
@@ -37,23 +36,33 @@ const changeViewMode = (baseElement, viewMode) => {
   });
 };
 
+// Einheitlicher Formatter + Subtext-Updater
+const formatStreak = ({
+  currentStreak,
+  totalCompletions,
+  totalIntervals,
+} = {}) =>
+  currentStreak !== undefined
+    ? `🔥${currentStreak} | ✅ ${totalCompletions}/${totalIntervals}`
+    : "";
+
+const updateGroupStreakSubtext = (groupId, groupComponent) => {
+  const data = Model.getStreakDataForGroup(groupId);
+  const sub = groupComponent.querySelector(".group-subtext");
+  if (sub) sub.textContent = formatStreak(data);
+};
+
 const buildGroupElement = (id, group) => {
-  // TODO: uneinheitlich Behandlung von HTML Tags. Entscheiden sie die Regeln und umbauen. Problem ist, das ich muss den ganzen Ding umbauen, wenn ich es einheitlich bauen will. Lass es einfach hier das selber und in spaeterer Iterationen, schreib es um
+  // Hinweis: Uneinheitliche DOM-Behandlung bewusst belassen; später refactoren.
   let { groupWrapper, groupEntries, groupSubtext } = createGroupElements(
     id,
     group.groupName,
     () => Model.toggleGroupSelection(id)
   );
 
-  const { currentStreak, totalCompletions, totalIntervals } =
-    Model.getStreakDataForGroup(id);
-
+  const data = Model.getStreakDataForGroup(id);
   groupSubtext.classList.add("group-subtext");
-
-  groupSubtext.textContent =
-    currentStreak !== undefined
-      ? `🔥${currentStreak} | ✅ ${totalCompletions}/${totalIntervals}`
-      : "";
+  groupSubtext.textContent = formatStreak(data);
 
   applyViewMode(groupEntries, [VIEW_MODES.EDIT]);
 
@@ -102,6 +111,8 @@ const handleAddTimestamp = async (list) => {
 
     const groupEntries = groupComponent.querySelector("ul");
     if (groupEntries) groupEntries.append(entryWrapper);
+
+    updateGroupStreakSubtext(id, groupComponent);
   });
 };
 
@@ -125,8 +136,8 @@ const handleManualTimestamp = async (input, list) => {
   await Model.addTimestampToSelectedGroups(timestamp);
 
   Model.state.selectedGroups.forEach((groupId) => {
-    const el = list.querySelector(`[id="${groupId}"]`);
-    const ul = el?.querySelector("ul");
+    const groupComponent = list.querySelector(`[id="${groupId}"]`);
+    const ul = groupComponent?.querySelector("ul");
     if (!ul) return;
 
     const { entryWrapper } = createGroupEntry(timestamp, () => {
@@ -134,6 +145,9 @@ const handleManualTimestamp = async (input, list) => {
     });
 
     ul.append(entryWrapper);
+
+    // 🔄 Streak neu berechnen + anzeigen
+    updateGroupStreakSubtext(groupId, groupComponent);
   });
 };
 
@@ -141,14 +155,10 @@ const handleManualTimestamp = async (input, list) => {
 // Controller Entry Point
 //////////////////////////////////////////////////////
 
-
-
 const renderApp = async () => {
-  // testDataAccessInterface();
-
   const state = await Model.init();
 
-  const { root, list, inputField, manualTimestampInput } = createAppView(
+  const { root, list } = createAppView(
     handleViewModeChange,
     handleAddGroup,
     handleAddTimestamp,
@@ -160,7 +170,6 @@ const renderApp = async () => {
 
   for (const [id, group] of Object.entries(state.groups)) {
     const groupWrapper = buildGroupElement(id, group);
-
     list.append(groupWrapper);
   }
 };

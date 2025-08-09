@@ -1,20 +1,20 @@
 import { auth } from "../../firebase-config";
-
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+
 export function mountLoginGate({ root, onReady }) {
   const wrapper = document.createElement("div");
   wrapper.id = "login-gate";
   wrapper.innerHTML = `
-    <div style="max-width:320px;margin:8rem auto;font-family:system-ui;">
-      <h2 style="margin-bottom:1rem;">Sign in</h2>
-      <input id="email" type="email" placeholder="Email" style="width:100%;padding:.5rem;margin:.25rem 0;">
-      <input id="password" type="password" placeholder="Password" style="width:100%;padding:.5rem;margin:.25rem 0;">
-      <button id="login" style="width:100%;padding:.6rem;margin-top:.5rem;">Log in</button>
-      <p id="err" style="color:#b00;min-height:1.2rem;"></p>
+    <div class="login-container">
+      <h2 class="login-title">Sign in</h2>
+      <input id="email" type="email" placeholder="Email" class="input">
+      <input id="password" type="password" placeholder="Password" class="input">
+      <button id="login" class="login-button">Log in</button>
+      <p id="err" class="login-error"></p>
     </div>
   `;
   root.appendChild(wrapper);
@@ -26,13 +26,11 @@ export function mountLoginGate({ root, onReady }) {
       const email = $("#email").value.trim();
       const pw = $("#password").value;
       await signInWithEmailAndPassword(auth, email, pw);
-      // onAuthStateChanged unten übernimmt das Routing
     } catch (e) {
       $("#err").textContent = e.message || "Login failed";
     }
   });
 
-  // Schaltet nach erfolgreichem Login zur App
   const unsub = onAuthStateChanged(auth, (user) => {
     if (user) {
       wrapper.remove();
@@ -41,6 +39,5 @@ export function mountLoginGate({ root, onReady }) {
     }
   });
 
-  // Optional: expose logout for a menu button
   return { logout: () => signOut(auth) };
 }

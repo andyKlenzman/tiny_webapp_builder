@@ -1,62 +1,87 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+html {
+  width: 100%;
+  width: 100vw;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+html, body {
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: black;
+  font-family: monospace;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+*, *::before, *::after {
+  box-sizing: inherit;
+  max-width: 100%;
 }
 
 body {
+  margin: 1em;
+  max-width: 600px;
+
+}
+
+
+
+h3 {
+  margin: 5px;
+  word-break: break-word;
+}
+
+p {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  word-break: break-word;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 20em;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+input, button {
+  border: none;
+  border-radius: 4px;
+  max-width: 100%;
 }
 
+input[type="text"] {
+  width: 100%;
+}
+
+input[type="text"],
+select,
+button {
+  font-family: inherit;
+  padding: 4px 8px;
+  border: 2px solid #aaa;
+  border-radius: 2px;
+  background-color: white;
+}
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  border: 2px solid #888;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #eee;
   cursor: pointer;
   transition: border-color 0.25s;
+  box-shadow: 1px 1px 0 #ccc;
+  color: black;
 }
+
 button:hover {
   border-color: #646cff;
+  background-color: #ddd;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -73,4 +98,137 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.group-name {
+  flex: 1;
+  margin: 0;
+  word-break: break-word;
+}
+
+.group-subtext {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.item-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  max-width: 100%;
+}
+
+.item-container.hidden {
+  display: none;
+}
+
+.status-indicator {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: grey;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  bottom: 0;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  max-width: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+
+
+
+#login-gate {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 320px;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.login-title {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.login-input {
+  display: block;
+  width: 100%;
+  margin: 0.25rem 0;
+}
+
+.login-button {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.login-error {
+  color: #b00;
+  min-height: 1.2rem;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+
+.footer-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.footer-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-row > * {
+  flex: 1;
+}
+
+
+.group-header + ul li {
+  margin: 0.1rem 0;
+  padding: 0.1rem 0;
+}
+
+.group-header + ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+ul li {
+  margin: 0rem 0;
+  padding: 0rem 0;
 }

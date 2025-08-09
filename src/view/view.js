@@ -103,10 +103,11 @@ export const createGroupElements = (id, name, onCheckboxToggle) => {
   groupCheckbox.type = "checkbox";
   groupCheckbox.addEventListener("change", () => onCheckboxToggle(id));
 
-  let groupName = document.createElement("h2");
+  let groupName = document.createElement("h3");
   groupName.textContent = name;
 
   let groupSubtext = document.createElement("p");
+  groupSubtext.classList.add("group-subtext");
 
   groupHeaderWrapper.append(groupCheckbox, groupName, groupSubtext);
 
@@ -144,9 +145,12 @@ export const createAppView = (
 ) => {
   const root = document.createElement("div");
 
-  const dropdown = createDropdown(VIEW_MODES, onViewModeChange);
+  const title = document.createElement("h1");
+  title.textContent = "Streaks";
+
   const { inputWrapper, inputField, inputButton } = createInputElements();
   const list = document.createElement("div");
+
   const addTimestampButton = createButtonElement("addTimestamp");
   const deleteButton = createButtonElement("delete");
 
@@ -156,37 +160,38 @@ export const createAppView = (
     manualTimestampInput,
   } = createManualTimestampInput();
 
-  // 👉 Neue Statusbar
-  const statusBar = createStatusBar();
+  const dropdown = createDropdown(VIEW_MODES, onViewModeChange);
 
-  // Event handlers binden
-  inputButton.addEventListener("click", () =>
-    onAddGroup(inputField, list, statusBar)
-  );
-  addTimestampButton.addEventListener("click", () =>
-    onAddTimestamp(list, statusBar)
-  );
-  deleteButton.addEventListener("click", () => onDelete(list, statusBar));
+  // Footer wrapper
+  const footerWrapper = document.createElement("div");
+  footerWrapper.classList.add("footer-wrapper");
+
+  const deleteAddRow = document.createElement("div");
+  deleteAddRow.classList.add("footer-row");
+  deleteAddRow.append(deleteButton, addTimestampButton);
+
+  manualTimestampWrapper.classList.add("footer-row");
+
+  const dropdownRow = document.createElement("div");
+  dropdownRow.classList.add("footer-row");
+  dropdownRow.append(dropdown);
+
+  footerWrapper.append(deleteAddRow, manualTimestampWrapper, dropdownRow);
+
+  // Event handlers
+  inputButton.addEventListener("click", () => onAddGroup(inputField, list));
+  addTimestampButton.addEventListener("click", () => onAddTimestamp(list));
+  deleteButton.addEventListener("click", () => onDelete(list));
   manualTimestampButton.addEventListener("click", () =>
-    onManualTimestamp(manualTimestampInput, list, statusBar)
+    onManualTimestamp(manualTimestampInput, list)
   );
 
-  // Alles einbauen
-  root.append(
-    dropdown,
-    inputWrapper,
-    list,
-    deleteButton,
-    addTimestampButton,
-    manualTimestampWrapper,
-    statusBar // ← ganz unten anzeigen
-  );
+  root.append(title, inputWrapper, list, footerWrapper);
 
   return {
     root,
     list,
     inputField,
     manualTimestampInput,
-    statusBar,
   };
 };
