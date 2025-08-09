@@ -70,14 +70,12 @@ const getStreaks = (msDateArray, intervalMap) => {
       currentStreak++;
       totalCompletions++;
     } else {
-      largestStreak = currentStreak;
+      largestStreak = Math.max(largestStreak, currentStreak);
       currentStreak = 0;
     }
   }
 
-  if (largestStreak === 0) {
-    largestStreak = currentStreak;
-  }
+  largestStreak = Math.max(largestStreak, currentStreak);
 
   return { currentStreak, largestStreak, totalCompletions, totalIntervals };
 };

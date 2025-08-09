@@ -38,7 +38,7 @@ const changeViewMode = (baseElement, viewMode) => {
 };
 
 const buildGroupElement = (id, group) => {
-  // TODO: uneinheitlich Behandlung von HTML Tags. Entscheiden sie die Regeln und umbauen
+  // TODO: uneinheitlich Behandlung von HTML Tags. Entscheiden sie die Regeln und umbauen. Problem ist, das ich muss den ganzen Ding umbauen, wenn ich es einheitlich bauen will. Lass es einfach hier das selber und in spaeterer Iterationen, schreib es um
   let { groupWrapper, groupEntries, groupSubtext } = createGroupElements(
     id,
     group.groupName,
@@ -47,13 +47,13 @@ const buildGroupElement = (id, group) => {
 
   const { currentStreak, totalCompletions, totalIntervals } =
     Model.getStreakDataForGroup(id);
-    
+
   groupSubtext.classList.add("group-subtext");
 
   groupSubtext.textContent =
     currentStreak !== undefined
       ? `🔥${currentStreak} | ✅ ${totalCompletions}/${totalIntervals}`
-      : "Keine Streak-Daten";
+      : "";
 
   applyViewMode(groupEntries, [VIEW_MODES.EDIT]);
 
