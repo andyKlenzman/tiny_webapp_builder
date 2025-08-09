@@ -5,10 +5,10 @@ import {
   createAppView,
 } from "../view/view";
 
+
 //////////////////////////////////////////////////////
 // Utilities
 //////////////////////////////////////////////////////
-// TODO: A little overkill , na??
 const updateStatusBar = (statusBarElement, statusText) => {
   if (statusBarElement) {
     statusBarElement.textContent = `Status: ${statusText}`;
@@ -140,6 +140,8 @@ const handleManualTimestamp = async (input, list) => {
 //////////////////////////////////////////////////////
 // Controller Entry Point
 //////////////////////////////////////////////////////
+
+
 
 const renderApp = async () => {
   // testDataAccessInterface();
