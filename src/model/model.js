@@ -1,4 +1,5 @@
 import { createDB, DB_SOURCES } from "./dataAccess/dataAccessInterface";
+import { runStreaks } from "./streaks";
 const DB = createDB(DB_SOURCES.firebase);
 
 export const COLLECTIONS = {
@@ -96,6 +97,18 @@ const groupStore = {
 };
 
 //////////////////////////////////////////////////////
+// Streak Logic
+//////////////////////////////////////////////////////
+
+const streakStore = {
+  getStreakDataForGroup(groupId) {
+    const group = state.groups[groupId];
+    if (!group) return null;
+    return runStreaks(group.timestamps);
+  },
+};
+
+//////////////////////////////////////////////////////
 // Timestamp Logic
 //////////////////////////////////////////////////////
 
@@ -165,6 +178,8 @@ export const Model = {
 
   getAppStatus: statusState.getStatus,
   setAppStatus: statusState.setStatus,
+
+  getStreakDataForGroup: streakStore.getStreakDataForGroup,
 
   state,
 };

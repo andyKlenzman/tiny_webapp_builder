@@ -10,7 +10,7 @@ export const getIntervalMap = (valueA, valueB, interval) => {
   let currentInterval;
   let endValue;
 
-  // find the lowest value
+  // find the lowerr value
   if (valueA < valueB) {
     currentInterval = valueA;
     endValue = valueB;
@@ -66,7 +66,6 @@ const getStreaks = (msDateArray, intervalMap) => {
 
   for (let i = 0; i < intervalMap.length - 1; i++) {
     let result = existsBetween(msDateArray, intervalMap[i], intervalMap[i + 1]);
-    console.log("testTime: ", result);
     if (result) {
       currentStreak++;
       totalCompletions++;

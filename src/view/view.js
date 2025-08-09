@@ -45,7 +45,6 @@ export const updateStatusBar = (statusText) => {
   }
 };
 
-
 export const createDropdown = (options, onChange) => {
   const dropdown = document.createElement("select");
 
@@ -107,13 +106,15 @@ export const createGroupElements = (id, name, onCheckboxToggle) => {
   let groupName = document.createElement("h2");
   groupName.textContent = name;
 
-  groupHeaderWrapper.append(groupCheckbox, groupName);
+  let groupSubtext = document.createElement("p");
+
+  groupHeaderWrapper.append(groupCheckbox, groupName, groupSubtext);
 
   let groupEntries = document.createElement("ul");
 
   groupWrapper.append(groupHeaderWrapper, groupEntries);
 
-  return { groupWrapper, groupName, groupCheckbox, groupEntries };
+  return { groupWrapper, groupName, groupSubtext, groupCheckbox, groupEntries };
 };
 
 export const createManualTimestampInput = () => {

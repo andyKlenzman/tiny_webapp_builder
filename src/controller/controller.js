@@ -4,8 +4,6 @@ import {
   createGroupEntry,
   createAppView,
 } from "../view/view";
-import testDataAccessInterface from "../model/dataAccess/dataTesting";
-import { runStreaks } from "./streaks";
 
 //////////////////////////////////////////////////////
 // Utilities
@@ -40,11 +38,22 @@ const changeViewMode = (baseElement, viewMode) => {
 };
 
 const buildGroupElement = (id, group) => {
-  const { groupWrapper, groupEntries } = createGroupElements(
+  // TODO: uneinheitlich Behandlung von HTML Tags. Entscheiden sie die Regeln und umbauen
+  let { groupWrapper, groupEntries, groupSubtext } = createGroupElements(
     id,
     group.groupName,
     () => Model.toggleGroupSelection(id)
   );
+
+  const { currentStreak, totalCompletions, totalIntervals } =
+    Model.getStreakDataForGroup(id);
+    
+  groupSubtext.classList.add("group-subtext");
+
+  groupSubtext.textContent =
+    currentStreak !== undefined
+      ? `🔥${currentStreak} | ✅ ${totalCompletions}/${totalIntervals}`
+      : "Keine Streak-Daten";
 
   applyViewMode(groupEntries, [VIEW_MODES.EDIT]);
 
@@ -133,7 +142,6 @@ const handleManualTimestamp = async (input, list) => {
 //////////////////////////////////////////////////////
 
 const renderApp = async () => {
-  // testTimeAnalyzers();
   // testDataAccessInterface();
 
   const state = await Model.init();
@@ -150,21 +158,6 @@ const renderApp = async () => {
 
   for (const [id, group] of Object.entries(state.groups)) {
     const groupWrapper = buildGroupElement(id, group);
-
-    const { currentStreak, totalCompletions, totalIntervals, largestStreak } =
-      runStreaks(group.timestamps);
-
-    console.log(
-      group.groupName,
-      "currentStreak",
-      currentStreak,
-      "totalCompletions",
-      totalCompletions,
-      "totalIntervals",
-      totalIntervals,
-      "largestStreak",
-      largestStreak
-    );
 
     list.append(groupWrapper);
   }
