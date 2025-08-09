@@ -71,7 +71,7 @@ const viewState = {
 const groupStore = {
   async addGroup(groupName) {
     const group = { groupName, timestamps: [] };
-    const { id } = await DB.add(COLLECTIONS.GROUPS, group);
+    const id = await DB.add(COLLECTIONS.GROUPS, group);
     state.groups[id] = group;
     return id;
   },
